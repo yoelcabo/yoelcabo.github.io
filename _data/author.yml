@@ -1,23 +1,32 @@
-name: Sharad Raj
-dp: https://avatars2.githubusercontent.com/u/36638057?s=460&u=0cbe4fd6b5a3655d91b3eb86db834d0829a0c086&v=4
+name: Yoel Cabo
+#dp: https://avatars.githubusercontent.com/u/16222943?s=400&u=f71dea4cdfdc6f3598595a7075c3fb87d39b007d&v=4
 description: "
   <p>
-    Developed by Sharad Raj who lives in India building useful things for the world.
+    Ei 👋 Soc en Yoel Cabo i aquesta és la meva pàgina web. 
   </p>
   <br/>
   <p>
-    You should follow him on <a href='https://github.com/sharadcodes' target='_blank'>Github</a>
-  </P>
+    Sóc un programador generalista a qui li agrada profunditzar en diferents temes sense casar-se amb cap. Tot i que amb <a href=https://www.happyscribe.com> Happy Scribe </a> sí que hi estic una mica casat.
+  </p>
+  <p>
+     També soc pare des del 2018 (amb 21 anys!).
+  </p>
+  <br/>
+  <p>
+    Últimament escric molt més en anglès que en català - i gairebé mai ho comparteixo públicament. Aquest espai és un petit intent de canviar això.
+  </p>
+  <br/>
+  <p>
+    Per qualsevol cosa: <a href=mailto:ei@yoel.cat>ei@yoel.cat</a>
+  </p>
 "
-email: dev_sharad@outlook.com
+email: ei@yoel.cat
 contact:
   - title: linkedin
-    url: https://www.linkedin.com/in/srsmaurya
+    url: https://www.linkedin.com/in/yoel-cabo-15b774a7/
   - title: github
-    url: https://github.com/sharadcodes
+    url: https://github.com/yoelcabo
   - title: twitter
-    url: https://twitter.com/iamsharadraj
-  - title: dev
-    url: https://dev.to/sharadcodes
+    url: https://twitter.com/yoelcabo
   - title: email
-    url: mailto:dev_sharad@outlook.com
+    url: mailto:ei@yoel.cat
