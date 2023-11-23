@@ -1,5 +1,5 @@
 const toggleSwitch = document.querySelector("#dark-mode-toggle");
-if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)')) {
+if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
   document.documentElement.setAttribute("data-theme", "light");
 } else {
   document.documentElement.setAttribute("data-theme", "dark");
