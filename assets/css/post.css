@@ -24,12 +24,6 @@ body {
   color: cyan;
   border-bottom: 1px solid cyan;
 }
-@media (prefers-color-scheme: light) {
-  .content a {
-    color: #1ebaba;
-    border-bottom: 1px solid #1ebaba;
-  }
-}
 [data-theme="light"] {
   .content a {
     color: #1ebaba;
@@ -205,14 +199,6 @@ main {
   color: var(--white-2);
   white-space: pre;
   background: var(--gray-3);
-}
-
-@media (prefers-color-scheme: light) {
-  .content code,
-  .content pre {
-    color: var(--gray-5);
-    background: var(--gray-2_5) !important;
-  }
 }
 
 [data-theme="light"] {
