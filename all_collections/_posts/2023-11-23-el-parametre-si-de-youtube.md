@@ -27,7 +27,7 @@ Provant, he vist un parell de coses:
 
 Com el `si=` és únic a cada acció de compartir, es pot rastrejar perfectament **qui comparteix, en quin moment del vídeo i a quina hora exacta**.
 
-L'ús que en fan pot ser molt variat. Algues coses que se m'acudeixen són:
+L'ús que en fan pot ser molt variat. Algunes coses que se m'acudeixen són:
 - Estadístiques generals de com es comparteixen els vídeos. Tant pels creadors com per YouTube.
 - Formar-se una idea de les preferències de la persona que comparteix. Per millorar la cerca i per "personalitzar" la publicitat.
 - Fer-se una idea aproximada de qui es relaciona amb qui. Si obro un link que tu em comparteixes, segurament és perquè ens coneixem.
