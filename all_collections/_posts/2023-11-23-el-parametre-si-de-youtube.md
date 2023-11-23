@@ -43,7 +43,7 @@ Si els hi has donat el consentiment en algun moment, sempre pots configurar-lo [
   
 Si no els hi has donat consentiment per res que no sigui necessari, és possible que també et rastregin de manera anònima. Per exemple, per saber quants usuaris hi ha a cada país, o quants usuaris n'hi ha que comparteixen vídeos.
   
-### Encara així no me'n refio
+### Encara així no te'n refies?
   
 Sempre hi ha coses que es poden fer per augmentar les teves garanties de privacitat, com fer servir un navegador que no et rastreja, com [Firefox](https://www.mozilla.org/ca/firefox/new/), o fer servir un bloquejador de publicitat i rastreig, com [uBlock Origin](https://ublockorigin.com/).
   
