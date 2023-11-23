@@ -7,6 +7,8 @@
   --gray-6: #111111;
   --white-1: #eeeeee;
   --white-2: #a9abb3;
+  --white-3: #6c6e76;
+
 }
 
 @media (prefers-color-scheme: light) {

@@ -6,19 +6,19 @@
       {% include header.html %} {% include bio.html %}
       <section class="articles">
         {% for post in site.posts %}
-        <article class="article">
-          <h2 class="article-title">
-            <a href="{{site.baseurl}}{{post.url}}"> {{post.title}} </a>
-          </h2>
-          <small class="date">{{post.date | date_to_string}}</small>
-          <div class="categories">
-            {% for c in post.categories %}
-            <a href="#!" data-base-url="{{site.baseurl}}" class="category"
-              >{{c}}</a
-            >
-            {% endfor %}
-          </div>
+        <a href="{{site.baseurl}}{{post.url}}">
+          <article class="article">
+            <h2 class="article-title">
+              {{post.title}}
+            </h2>
+            <small class="date" style="color: var(--white-2)">{{post.date | date_to_string}}</small>
+            <div class="categories">
+              {% for c in post.categories %}
+              <span class="category">{{c}}</span>
+              {% endfor %}
+            </div>
         </article>
+        </a>
         {%endfor%}
       </section>
       {% include footer.html %}
