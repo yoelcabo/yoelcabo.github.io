@@ -34,16 +34,21 @@ L'ús que en fan pot ser molt variat. Algues coses que se m'acudeixen són:
   
 ## He de fer alguna cosa al respecte?
 
-Dit així, sona tot molt malament. Però tot depèn i es pot relativitzar.
+"Rastreig" sempre sona molt malament, tot i que en la majoria de casos no és tant greu.
+
+Per sort tenim diferentes maneres de modular-lo al nostre gust:
+
+### Entén com funciona el consentiment en temes de protecció de dades
+
 En principi, si les plataformes respecten les lleis de protecció de dades, només poden processar-les amb el teu consentiment i pels propòsits que t'han explicat i a tu et semblin bé. (Per exemple, et pot semblar bé que es faci un perfil teu per millorar la cerca, però no que es comparteixi amb tercers per fer publicitat).
   
 Pots llegir més informació sobre aquest tema a la Viquipèdia: [Directiva de Protecció de Dades](https://ca.wikipedia.org/wiki/Directiva_de_Protecci%C3%B3_de_Dades)
   
 Si els hi has donat el consentiment en algun moment, sempre pots configurar-lo [al teu compte de Google](https://myaccount.google.com/data-and-privacy).
   
-Si no els hi has donat consentiment per res que no sigui necessari, és possible que també et rastregin de manera anònima. Per exemple, per saber quants usuaris hi ha a cada país, o quants usuaris n'hi ha que comparteixen vídeos.
+Si no els hi has donat consentiment per res que no sigui necessari, és possible que també et rastregin de manera anònima. Per exemple, per saber quants usuaris hi ha a cada país, o quants usuaris comparteixen vídeos. Es considera que aquest tipus de "rastreig" no és intrusiu i no cal que et demanin permís.
   
-### Encara així no te'n refies?
+### Millora la teva higiene de la privacitat
   
 Sempre hi ha coses que es poden fer per augmentar les teves garanties de privacitat, com fer servir un navegador que no et rastreja, com [Firefox](https://www.mozilla.org/ca/firefox/new/), o fer servir un bloquejador de publicitat i rastreig, com [uBlock Origin](https://ublockorigin.com/).
   
