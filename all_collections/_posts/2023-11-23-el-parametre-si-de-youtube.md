@@ -4,7 +4,7 @@ title: El paràmetre si= de Youtube
 categories: [privacitat, youtube]
 ---
   
-Quan compartim un vídeo de YouTube a una altra plataforma, l'ellaç que ens dona el dia d'avui és d'aquest estil:
+Quan compartim un vídeo de YouTube a una altra plataforma, l'enllaç que ens dona el dia d'avui és d'aquest estil:
 ```
 https://youtu.be/jNQXAC9IVRw?si=LhUQIzCLubNrfUOj
 ```
@@ -50,7 +50,7 @@ Si no els hi has donat consentiment per res que no sigui necessari, és possible
   
 ### Millora la teva higiene de la privacitat
   
-Sempre hi ha coses que es poden fer per augmentar les teves garanties de privacitat, com fer servir un navegador que no et rastreja, com [Firefox](https://www.mozilla.org/ca/firefox/new/), o fer servir un bloquejador de publicitat i rastreig, com [uBlock Origin](https://ublockorigin.com/).
+Sempre hi ha coses que es poden fer per augmentar les teves garanties de privacitat, com fer servir un navegador que no et rastreja, com [Firefox](https://www.mozilla.org/ca/firefox/new/), o fer servir un bloquejador de publicitat i rastreig, com [uBlock Origin](https://ublockorigin.com/). Una cosa que fan aquestes eines és eliminar aquest tipus de paràmetres dels enllaços.
   
 Està ple de posts a internet amb bàsics sobre "higiene de la privacitat". Però no he trobat res interessant en català. Si t'interessa que en faci un, envia'm un correu a [ei@yoel.cat](mailto:ei@yoel.cat).
   
