@@ -44,9 +44,9 @@ En principi, si les plataformes respecten les lleis de protecció de dades, nom�
   
 Pots llegir més informació sobre aquest tema a la Viquipèdia: [Directiva de Protecció de Dades](https://ca.wikipedia.org/wiki/Directiva_de_Protecci%C3%B3_de_Dades)
   
-Si els hi has donat el consentiment en algun moment, sempre pots configurar-lo [al teu compte de Google](https://myaccount.google.com/data-and-privacy).
+Si els has donat el consentiment en algun moment, sempre pots configurar-lo [al teu compte de Google](https://myaccount.google.com/data-and-privacy).
   
-Si no els hi has donat consentiment per res que no sigui necessari, és possible que també et rastregin de manera anònima. Per exemple, per saber quants usuaris hi ha a cada país, o quants usuaris comparteixen vídeos. Es considera que aquest tipus de "rastreig" no és intrusiu i no cal que et demanin permís.
+Si no els has donat consentiment per res que no sigui necessari, és possible que també et rastregin de manera anònima. Per exemple, per saber quants usuaris hi ha a cada país, o quants usuaris comparteixen vídeos. Es considera que aquest tipus de "rastreig" no és intrusiu i no cal que et demanin permís.
   
 ### Millora la teva higiene de la privacitat
   
