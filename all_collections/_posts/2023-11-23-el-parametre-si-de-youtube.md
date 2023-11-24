@@ -8,11 +8,14 @@ Quan compartim un vídeo de YouTube a una altra plataforma, l'enllaç que ens do
 ```
 https://youtu.be/jNQXAC9IVRw?si=LhUQIzCLubNrfUOj
 ```
-Si ho haguéssim fet fa unes setmanes, seria així:
+
+Aquest `si=LhUQIzCLubNrfUOj` no hi era abans! Fa unes setmanes, era així:
 ```
 https://youtu.be/jNQXAC9IVRw
 ```
-  
+
+ 
+
 L'altre dia, una amiga va compartir en un grup de WhatsApp un vídeo que intentava explicar que això és un paràmetre de rastreig, cosa que va obrir un mini debat sobre si era així o no. Com soc molt propens a deixar-me portar per *caus de conill¹* com aquest, vaig decidir fer-hi una ullada.
   
 ## Petita exploració
