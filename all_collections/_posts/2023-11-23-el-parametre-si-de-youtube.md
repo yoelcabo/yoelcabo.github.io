@@ -24,7 +24,7 @@ Google no té documentació oficial per aquest paràmetre, per tant, no podem sa
 Provant, he vist un parell de coses:
 - Cada vegada que fas clic a compartir, el paràmetre canvia. Sembla un identificador únic i aleatori. Per exemple, `si=LhUQIzCLubNrfUOj` és segurament un valor únic que correspon al moment precís on jo escrivia aquest article. 
 - Si no tens connexió a internet, no es genera l'enllaç.
-- Si esborres el paràmetre, el vídeo es reprodueix igualment.
+- Si esborres el paràmetre, el vídeo es reprodueix igualment. És completament innecessari a nivell funcional. 
   
 ## Què pot estar fent Google amb aquest paràmetre?
 
