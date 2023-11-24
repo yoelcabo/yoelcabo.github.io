@@ -22,7 +22,7 @@ L'altre dia, una amiga va compartir en un grup de WhatsApp un vídeo que intenta
 
 Google no té documentació oficial per aquest paràmetre, per tant, no podem saber segur què en fan.
 Provant, he vist un parell de coses:
-- Cada vegada que fas clic a compartir, el paràmetre canvia. Sembla un identificador únic i aleatori.
+- Cada vegada que fas clic a compartir, el paràmetre canvia. Sembla un identificador únic i aleatori. Per exemple, `si=LhUQIzCLubNrfUOj` és segurament un valor únic que correspon al moment precís on jo escrivia aquest article. 
 - Si no tens connexió a internet, no es genera l'enllaç.
 - Si esborres el paràmetre, el vídeo es reprodueix igualment.
   
@@ -43,7 +43,7 @@ Per sort tenim diferentes maneres de modular-lo al nostre gust:
 
 ### Entén com funciona el consentiment en temes de protecció de dades
 
-En principi, si les plataformes respecten les lleis de protecció de dades, només poden processar-les amb el teu consentiment i pels propòsits que t'han explicat i a tu et semblin bé. (Per exemple, et pot semblar bé que es faci un perfil teu per millorar la cerca, però no que es comparteixi amb tercers per fer publicitat).
+En principi, si les plataformes respecten les lleis de protecció de dades, només poden processar-les amb el teu consentiment i pels propòsits que t'han explicat i a tu et semblin bé. Per exemple, et pot semblar bé que es faci un perfil teu per millorar la cerca, però no que es comparteixi amb tercers per fer publicitat.
   
 Pots llegir més informació sobre aquest tema a la Viquipèdia: [Directiva de Protecció de Dades](https://ca.wikipedia.org/wiki/Directiva_de_Protecci%C3%B3_de_Dades)
   
@@ -55,7 +55,7 @@ Si no els has donat consentiment per res que no sigui necessari, és possible qu
   
 Sempre hi ha coses que es poden fer per augmentar les teves garanties de privacitat, com fer servir un navegador que no et rastreja, com [Firefox](https://www.mozilla.org/ca/firefox/new/), o fer servir un bloquejador de publicitat i rastreig, com [uBlock Origin](https://ublockorigin.com/). Una cosa que fan aquestes eines és eliminar aquest tipus de paràmetres dels enllaços.
   
-Està ple de posts a internet amb bàsics sobre "higiene de la privacitat". Però no he trobat res interessant en català. Si t'interessa que en faci un, envia'm un correu a [ei@yoel.cat](mailto:ei@yoel.cat).
+Està ple d'articles a internet amb bàsics sobre "higiene de la privacitat". Però no he trobat res interessant en català. Si t'interessa que en faci un, envia'm un correu a [ei@yoel.cat](mailto:ei@yoel.cat).
   
 -----
   
