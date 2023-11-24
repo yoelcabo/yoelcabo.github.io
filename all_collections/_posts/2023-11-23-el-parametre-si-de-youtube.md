@@ -21,6 +21,7 @@ L'altre dia, una amiga va compartir en un grup de WhatsApp un vídeo que intenta
 ## Petita exploració
 
 Google no té documentació oficial per aquest paràmetre, per tant, no podem saber segur què en fan. (YouTube és de Google) 
+
 Provant, he vist un parell de coses:
 - Cada vegada que fas clic a compartir, el paràmetre canvia. Sembla un identificador únic i aleatori. Per exemple, `si=LhUQIzCLubNrfUOj` és segurament un valor únic que correspon al moment precís on jo escrivia aquest article. 
 - Si no tens connexió a internet, no es genera l'enllaç.
