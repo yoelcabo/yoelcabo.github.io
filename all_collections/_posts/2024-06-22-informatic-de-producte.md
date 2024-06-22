@@ -27,11 +27,12 @@ El que ens diferencia dels altres programadors és que tenim una visió més àm
 
 En empreses petites, aquesta feina sovint la fa una sola persona. L'informàtic de producte és l'equip de producte.
 
-- Si estàs muntant una startup, el primer programador que contractis hauria de ser un informàtic de producte. En aquests moments és crucial moure's ràpid. Com menys persones hagis de coordinar, millor.
-- Si treballes amb un programador freelance, un informàtic de producte és la diferència entre "Vull moure el botó de 'subscriu-me' a la part superior de la pàgina. Quant de temps trigaràs?" i "M'agradaria que més usuaries es subscrivissin. Què podem fer amb 2 o 3 hores de feina?".
+Un informàtic de producte és la diferència entre "Vull moure el botó de 'subscriu-me' a la part superior de la pàgina. Quant de temps trigaràs?" i "M'agradaria que més usuaries es subscrivissin. Què podem fer amb 2 o 3 hores de feina?".
+
+Quan entens perfectament el producte i el client, i a la vegada veus totes les possibles solucions i la seva complexitat tècnica, prioritzar es torna molt més fàcil.
 
 ## I molt útils per a empreses més grans
 
-A mesura que les empreses van creixent, els rols es van especialitzant: dissenyadors, analistes de dades, gestors de producte, investigadors d'usabilitat, programadors centrats en la part tècnica, etc. 
+A mesura que les empreses van creixent els productes es tornen més complexos i és més que una sola persona pugui tenir-ho tot al cap. Així doncs, els rols es van especialitzant: dissenyadors, analistes de dades, gestors de producte, investigadors d'usabilitat, programadors centrats en la part tècnica, etc. 
 
 En aquest cas, l'informàtic de producte pot ser un bon pont entre tots aquests rols. La comunicació és molt més fàcil quan tothom parla el mateix idioma.
