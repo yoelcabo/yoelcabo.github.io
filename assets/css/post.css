@@ -19,6 +19,7 @@ body {
   font-family: "JetBrains Mono", monospace;
   line-height: 2rem;
   background-color: var(--gray-5);
+  padding: 1.5rem;
 }
 .content a {
   color: cyan;
@@ -246,10 +247,4 @@ main {
   padding: 4px;
   background-color: black;
   border: 2px solid white;
-}
-
-@media screen and (max-width: 750px) {
-  body {
-    padding: 1.5rem;
-  }
 }
