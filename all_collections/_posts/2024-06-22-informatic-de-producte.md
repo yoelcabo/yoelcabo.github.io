@@ -32,6 +32,6 @@ Quan entens perfectament el producte i el client, i a la vegada veus totes les p
 
 ## I molt útils per a empreses més grans
 
-A mesura que les empreses van creixent els productes es tornen més complexos i és més que una sola persona pugui tenir-ho tot al cap. Així doncs, els rols es van especialitzant: dissenyadors, analistes de dades, gestors de producte, investigadors d'usabilitat, programadors centrats en la part tècnica, etc. 
+A mesura que les empreses van creixent, els productes es tornen més complexos i és més que una sola persona pugui tenir-ho tot al cap. Així doncs, els rols es van especialitzant: dissenyadors, analistes de dades, gestors de producte, investigadors d'usabilitat, programadors centrats en la part tècnica, etc. 
 
 En aquest cas, l'informàtic de producte pot ser un bon pont entre tots aquests rols. La comunicació és molt més fàcil quan tothom parla el mateix idioma.
