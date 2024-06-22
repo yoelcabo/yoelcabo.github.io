@@ -1,0 +1,37 @@
+---
+layout: post
+title: L'informàtic de producte
+categories: [producte, startups]
+---
+
+Quan em pregunten quina és la meva feina, acostumo a dir "programador" o "informàtic". Però mai trobo que comuniqui prou bé quin és el meu dia a dia ni perquè m'apassiona tant el que faig. En anglès, s'ha escrit bastant sobre els ["product engineers"](https://posthog.com/blog/what-is-a-product-engineer), però en català (i en castellà) no he trobat absolutament res. Doncs bé, suposo que em toca a mi traduir aquest terme i explicar-lo. Li direm "informàtic de producte".
+
+Un informàtic de producte és molt més que un programador. És una figura clau en el desenvolupament de productes digitals, encarregada de portar les idees a la realitat, tenint sempre en compte l'usuari final i el valor que aporta el producte.
+
+
+## Programadors
+
+Els informàtics de producte som, primer de tot, programadors. Això vol dir que ens dediquem a materialitzar els productes digitals que utilitzes. Resolem tots els petits detalls que fan possible que, per exemple, puguis enviar una foto per WhatsApp o llegir un article a la Viquipèdia. No és una feina molt diferent a la d'un electricista o un paleta. Però en lloc de passar cables o posar rajoles, escrivim petits programes que mouen informació, la combinen de maneres interessants i la mostren.
+
+## "Fullstack"
+
+A més de programadors, acostumem a ser programadors "fullstack". Això és una paraula en anglès que bàsicament vol dir que programem de tot. Els cables *i* les rajoles.
+
+## Amb visió de producte
+
+Però la cosa no s'acaba aquí. El que ens diferencia dels altres programadors és que tenim una visió més àmplia del producte. Ens preguntem per què fem les coses, per a qui les fem i com les fem. Ens preguntem si el que fem és el millor que podem fer. És el que necessiten els nostres clients? Té sentit? Hi ha res més important? Primer entenem per què cal la cuina i com necessita el client que quedi, i després comencem a passar cables i posar rajoles. Un cop la cuina està acabada, observem com la fan servir i què es podria millorar.
+
+És a dir, a més de programadors, som una mica dissenyadors, una mica analistes i una mica gestors de projectes. No som experts en cap d'aquestes coses, però sabem una mica de tot. Això ens permet entendre millor el nostre producte i el nostre client. Cosa que és essencial per administrar bé el nostre temps i, en definitiva, fer un producte amb bon gust.
+
+## Ideals per a empreses petites
+
+En empreses petites, aquesta feina sovint la fa una sola persona. L'informàtic de producte és l'equip de producte.
+
+- Si estàs muntant una startup, el primer programador que contractis hauria de ser un informàtic de producte.
+- Si treballes amb un programador freelance, un informàtic de producte és la diferència entre "vull moure aquest botó a la part inferior de la pàgina" i "vull que els usuaris puguin fer això i allò".
+
+## I molt útils per a empreses més grans
+
+A mesura que les empreses van creixent, els rols es van especialitzant: dissenyadors, analistes de dades, gestors de producte, investigadors d'usabilitat, programadors centrats en la part tècnica, etc. 
+
+En aquest cas, l'informàtic de producte pot ser un bon pont entre tots aquests rols. La comunicació és molt més fàcil quan tothom parla el mateix idioma.
