@@ -25,11 +25,10 @@ El que ens diferencia dels altres programadors és que tenim una visió més àm
 
 ## Ideals per a empreses petites
 
-En empreses petites, aquesta feina sovint la fa una sola persona. L'informàtic de producte és l'equip de producte.
 
 Un informàtic de producte és la diferència entre "Vull moure el botó de 'subscriu-me' a la part superior de la pàgina. Quant de temps trigaràs?" i "M'agradaria que més usuaries es subscrivissin. Què podem fer amb 2 o 3 hores de feina?".
 
-Quan entens perfectament el producte i el client, i a la vegada veus totes les possibles solucions i la seva complexitat tècnica, prioritzar es torna molt més fàcil.
+Quan entens perfectament el producte i el client, i a la vegada veus totes les possibles solucions i la seva complexitat tècnica, prioritzar es torna molt més fàcil. Per això, en empreses petites, aquesta feina sovint la fa una sola persona. L'informàtic de producte és l'equip de producte.
 
 ## I molt útils per a empreses més grans
 
