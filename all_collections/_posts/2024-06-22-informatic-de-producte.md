@@ -6,7 +6,7 @@ categories: [producte, startups]
 
 Quan em pregunten quina és la meva feina, acostumo a dir "programador" o "informàtic". Però mai trobo que comuniqui prou bé quin és el meu dia a dia ni perquè m'apassiona tant el que faig. En anglès, s'ha escrit bastant sobre els ["product engineers"](https://posthog.com/blog/what-is-a-product-engineer), però en català (i en castellà) no he trobat absolutament res. Doncs bé, suposo que em toca a mi traduir aquest terme i explicar-lo. Li direm "informàtic de producte".
 
-Un informàtic de producte és molt més que un programador. És una figura clau en el desenvolupament de productes digitals, encarregada de portar les idees a la realitat, tenint sempre en compte l'usuari final i el valor que aporta el producte.
+Un informàtic de producte és un programador que té sempre en compte l'usuari final i el valor que aporta el producte.
 
 
 ## Programadors
