@@ -21,13 +21,13 @@ A més de programadors, acostumem a ser programadors "fullstack". Això és una 
 
 El que ens diferencia dels altres programadors és que tenim una visió més àmplia del producte. Ens preguntem per què fem les coses, per a qui les fem i com les fem. És el que necessiten els nostres clients? Té sentit? Hi ha res més important? Primer entenem per què cal la cuina i com necessita el client que quedi, i després comencem a passar cables i posar rajoles. Un cop la cuina està acabada, observem com la fan servir i què es podria millorar.
 
-És a dir, a més de programadors, som una mica dissenyadors, una mica analistes i una mica gestors de projectes. No som experts en cap d'aquestes coses, però sabem una mica de tot. Això ens permet entendre millor el nostre producte i el nostre client. Cosa que és essencial per administrar bé el nostre temps i, en definitiva, fer un producte amb bon gust.
+És a dir, a més de programadors, som una mica dissenyadors, una mica analistes i una mica gestors de projectes. No som experts en cap d'aquestes coses, però sabem una mica de tot. Això ens permet treballar independentment, prenent decisions ràpides i fent cicles curts. Tot plegat resulta en un producte més adaptat a les necessitats dels nostres usuaris.
 
 ## Ideals per a empreses petites
 
 En empreses petites, aquesta feina sovint la fa una sola persona. L'informàtic de producte és l'equip de producte.
 
-- Si estàs muntant una startup, el primer programador que contractis hauria de ser un informàtic de producte.
+- Si estàs muntant una startup, el primer programador que contractis hauria de ser un informàtic de producte. En aquests moments és crucial moure's ràpid. Com menys persones hagis de coordinar, millor.
 - Si treballes amb un programador freelance, un informàtic de producte és la diferència entre "mou el botó de 'subscriu-me' a la part superior de la pàgina" i "m'agradaria que més usuaries es subscrivissin".
 
 ## I molt útils per a empreses més grans
