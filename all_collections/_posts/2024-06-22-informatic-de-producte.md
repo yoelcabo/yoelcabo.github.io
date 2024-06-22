@@ -19,7 +19,7 @@ A més de programadors, acostumem a ser programadors "fullstack". Això és una 
 
 ## Amb visió de producte
 
-Però la cosa no s'acaba aquí. El que ens diferencia dels altres programadors és que tenim una visió més àmplia del producte. Ens preguntem per què fem les coses, per a qui les fem i com les fem. Ens preguntem si el que fem és el millor que podem fer. És el que necessiten els nostres clients? Té sentit? Hi ha res més important? Primer entenem per què cal la cuina i com necessita el client que quedi, i després comencem a passar cables i posar rajoles. Un cop la cuina està acabada, observem com la fan servir i què es podria millorar.
+El que ens diferencia dels altres programadors és que tenim una visió més àmplia del producte. Ens preguntem per què fem les coses, per a qui les fem i com les fem. És el que necessiten els nostres clients? Té sentit? Hi ha res més important? Primer entenem per què cal la cuina i com necessita el client que quedi, i després comencem a passar cables i posar rajoles. Un cop la cuina està acabada, observem com la fan servir i què es podria millorar.
 
 És a dir, a més de programadors, som una mica dissenyadors, una mica analistes i una mica gestors de projectes. No som experts en cap d'aquestes coses, però sabem una mica de tot. Això ens permet entendre millor el nostre producte i el nostre client. Cosa que és essencial per administrar bé el nostre temps i, en definitiva, fer un producte amb bon gust.
 
