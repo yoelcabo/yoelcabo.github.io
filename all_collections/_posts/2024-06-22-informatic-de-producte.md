@@ -42,6 +42,6 @@ En aquest cas, la informàtica de producte pot ser un bon pont entre tots aquest
 Com deia abans, s'ha escrit molt més sobre aquest tema en anglès. Aquí tens alguns enllaços interessants:
 - Aquest [Product Engineer Manifesto](https://productengineer.org/) captura la idea molt concisament.
 - A Happy Scribe, hem escrit [aquest article](https://www.notion.so/happyscribe/The-Product-Engineer-aa49c0bffd4242f29c89d11202c000ec) sobre com treballem.
-- [L'article de PostHog](https://posthog.com/blog/what-is-a-product-engineer) que he enllaçat abans. A PostHog fan eines per informàtics de producte.
+- A PostHog fan eines per informàtics de producte i han escrit [l'article que he enllaçat abans](https://posthog.com/blog/what-is-a-product-engineer). 
 
 Si tens alguna pregunta o t'agradaria saber com un informàtic de producte podria ajudar al teu projecte, fes-me un correu a [ei@yoel.cat](mailto:ei@yoel.cat).
