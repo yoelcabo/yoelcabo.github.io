@@ -9,7 +9,7 @@ Quan em pregunten quina és la meva feina, acostumo a dir "programador" o "infor
 Un informàtic de producte és una programadora que té sempre en compte l'usuari final i el valor que aporta el producte que desenvolupa.
 
 
-## Programadors
+## Programadores
 
 Les informàtiques de producte som, primer de tot, programadores. Això vol dir que ens dediquem a materialitzar els productes digitals que utilitzes. Resolem tots els petits detalls que fan possible que, per exemple, puguis enviar una foto per WhatsApp o llegir un article a la Viquipèdia. No és una feina molt diferent a la d'una electricista o un paleta. Però en lloc de passar cables o posar rajoles, escrivim petits programes que mouen informació, la combinen de maneres interessants i la mostren.
 
