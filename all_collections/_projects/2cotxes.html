@@ -182,9 +182,9 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
                 rightSquare: '#C2185B'  // Color més fosc pel quadrat dret
             },
             transitionDurations: {
-                gameStart: 1000,
-                gameRestart: 400,
-                carMove: 50
+                gameStart: 1000,  // Increased from 1000 to 2000 milliseconds
+                gameRestart: 400,  // Increased from 400 to 1500 milliseconds
+                carMove: 250,
             }
         };
 
@@ -218,11 +218,14 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
                 const carHeight = carWidth * 1.6;
                 const initialY = canvas.height - GameConfig.bottomMargin - carHeight;
                 
-                // Inicialitzar els cotxes a les seves posicions inicials
-                this.car1 = new Car(0, GameConfig.carColors.left, canvas.width / 4 - carWidth / 2);
-                this.car2 = new Car(3, GameConfig.carColors.right, 3 * canvas.width / 4 - carWidth / 2);
+                // Initialize cars at the center of their respective sides
+                const leftCenterX = this.laneWidth;
+                const rightCenterX = 3 * this.laneWidth;
                 
-                // Establir les posicions objectiu dels cotxes
+                this.car1 = new Car(0, GameConfig.carColors.left, leftCenterX - carWidth / 2);
+                this.car2 = new Car(3, GameConfig.carColors.right, rightCenterX - carWidth / 2);
+                
+                // Set target positions
                 this.car1.targetX = this.laneWidth / 2 - carWidth / 2;
                 this.car2.targetX = 3 * this.laneWidth + this.laneWidth / 2 - carWidth / 2;
                 
@@ -238,14 +241,53 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             },
 
             reset() {
-                const oldCar1X = this.car1.x;
-                const oldCar2X = this.car2.x;
-                this.initialize();
-                this.car1.x = oldCar1X;
-                this.car2.x = oldCar2X;
+                if (!this.car1 || !this.car2) {
+                    this.initialize();
+                    this.gameStartTransition = true;
+                    this.gameStartTransitionStart = performance.now();
+                } else {
+                    // Keep the current positions for restart
+                    const car1CurrentX = this.car1.x;
+                    const car2CurrentX = this.car2.x;
+                    
+                    this.initialize();
+                    
+                    // Set the current positions as start positions
+                    this.car1.x = car1CurrentX;
+                    this.car1.startX = car1CurrentX;
+                    this.car2.x = car2CurrentX;
+                    this.car2.startX = car2CurrentX;
+                    
+                    this.gameRestartTransition = true;
+                    this.gameRestartTransitionStart = performance.now();
+                }
+                
                 this.gameStarted = true;
-                this.gameStartTransition = true;
-                this.gameStartTransitionStart = performance.now();
+                this.obstacles = []; // Clear existing obstacles
+            },
+
+            checkTransitionEnd(currentTime) {
+                if (this.gameStartTransition) {
+                    const elapsedTime = currentTime - this.gameStartTransitionStart;
+                    const progress = Math.min(elapsedTime / GameConfig.transitionDurations.gameStart, 1);
+                    
+                    // Update car positions during transition
+                    this.car1.move(progress);
+                    this.car2.move(progress);
+                    
+                    if (progress >= 1) {
+                        this.gameStartTransition = false;
+                        this.initializeGameState();
+                    }
+                }
+            },
+
+            initializeGameState() {
+                this.speed = GameConfig.startSpeed;
+                this.lastObstacleTime = performance.now();
+                this.distanceSinceLastObstacle = GameConfig.baseObstacleDistance;
+                // Remove the line that creates the first obstacle immediately
+                // this.createObstacle(); // This line should be removed
             },
 
             updateSpeed(deltaTime) {
@@ -255,7 +297,9 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             },
 
             createObstacle() {
-                if (this.distanceSinceLastObstacle < GameConfig.baseObstacleDistance) return;
+                if (this.gameStartTransition || this.gameRestartTransition || !this.gameStarted) return false;
+                
+                if (this.distanceSinceLastObstacle < GameConfig.baseObstacleDistance) return false;
 
                 const createForSide = (startLane) => {
                     const pair = this.obstacles.filter(obs => obs.lane >= startLane && obs.lane < startLane + 2);
@@ -367,9 +411,16 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             updateCarPositions(deltaTime) {
                 const currentTime = performance.now();
                 
-                const updateCarPosition = (car, transitionStart, transitionDuration) => {
-                    const progress = Math.min((currentTime - transitionStart) / transitionDuration, 1);
+                const updateCarPosition = (car, transitionStart, duration) => {
+                    const progress = Math.min((currentTime - transitionStart) / duration, 1);
                     car.move(progress);
+                    
+                    // Start straightening when the car is 80% through its movement
+                    if (progress >= 0.8) {
+                        car.targetTilt = 0;
+                    }
+                    
+                    car.updateTilt(deltaTime);
                     return progress === 1;
                 };
 
@@ -390,11 +441,21 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
                         this.car2.x = this.car2.targetX;
                     }
                 } else {
-                    if (this.car1TransitionStart > 0 && updateCarPosition(this.car1, this.car1TransitionStart, GameConfig.transitionDurations.carMove)) {
+                    // Calculate carMove duration based on current speed
+                    const calculateCarMoveDuration = () => {
+                        const minDuration = 50;
+                        const maxDuration = GameConfig.transitionDurations.carMove;
+                        const speedFactor = (GameConfig.maxSpeed - this.speed) / (GameConfig.maxSpeed - GameConfig.startSpeed);
+                        return minDuration + speedFactor * (maxDuration - minDuration);
+                    };
+
+                    const carMoveDuration = calculateCarMoveDuration();
+
+                    if (this.car1TransitionStart > 0 && updateCarPosition(this.car1, this.car1TransitionStart, carMoveDuration)) {
                         this.car1TransitionStart = 0;
                     }
                     
-                    if (this.car2TransitionStart > 0 && updateCarPosition(this.car2, this.car2TransitionStart, GameConfig.transitionDurations.carMove)) {
+                    if (this.car2TransitionStart > 0 && updateCarPosition(this.car2, this.car2TransitionStart, carMoveDuration)) {
                         this.car2TransitionStart = 0;
                     }
                 }
@@ -411,8 +472,11 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
                 }
 
                 if (newLane !== car.lane) {
+                    const oldLane = car.lane;
                     car.lane = newLane;
+                    car.startX = car.x; // Set the start position
                     car.targetX = car.lane * this.laneWidth + this.laneWidth / 2 - car.width / 2;
+                    car.targetTilt = (newLane > oldLane) ? Math.PI / 12 : -Math.PI / 12;
                     return true;
                 }
                 return false;
@@ -424,8 +488,12 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
                 this.lane = lane;
                 this.color = color;
                 this.x = initialX;
+                this.tilt = 0;
+                this.targetTilt = 0;
+                this.tiltVelocity = 0;
                 this.updateDimensions();
-                this.targetX = this.x; 
+                this.targetX = this.x;
+                this.startX = this.x; // Add this line
             }
 
             updateDimensions() {
@@ -443,11 +511,41 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             }
 
             draw(ctx) {
-                drawCar(ctx, this.x, this.y, this.color, this.width, this.height);
+                drawCar(ctx, this.x, this.y, this.color, this.width, this.height, this.tilt);
             }
 
             move(progress) {
-                this.x = this.x + (this.targetX - this.x) * progress;
+                this.x = this.startX + (this.targetX - this.startX) * progress;
+            }
+
+            updateTilt(deltaTime) {
+                const springStrength = 0.3;
+                const damping = 0.7;
+                const maxTilt = Math.PI / 12;
+                const returnSpeed = 0.008; // Reduced from 0.012
+
+                if (this.targetTilt !== 0) {
+                    // Tilting towards target
+                    const tiltForce = (this.targetTilt - this.tilt) * springStrength;
+                    this.tiltVelocity += tiltForce;
+                    this.tiltVelocity *= damping;
+                    this.tilt += this.tiltVelocity * deltaTime / 16;
+                } else {
+                    // Returning to straight position
+                    const direction = Math.sign(this.tilt);
+                    const newTilt = this.tilt - direction * returnSpeed * deltaTime;
+                    
+                    // Check if we've crossed zero
+                    if (Math.sign(newTilt) !== direction) {
+                        this.tilt = 0;
+                        this.tiltVelocity = 0;
+                    } else {
+                        this.tilt = newTilt;
+                    }
+                }
+
+                // Clamp tilt to max values
+                this.tilt = Math.max(Math.min(this.tilt, maxTilt), -maxTilt);
             }
         }
 
@@ -475,9 +573,11 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             }
         }
 
-        function drawCar(ctx, x, y, color, width, height) {
+        function drawCar(ctx, x, y, color, width, height, tilt) {
             ctx.save();
-            ctx.translate(x, y);
+            ctx.translate(x + width / 2, y + height / 2);
+            ctx.rotate(tilt);
+            ctx.translate(-width / 2, -height / 2);
 
             // Cos principal del cotxe
             ctx.fillStyle = color;
@@ -751,11 +851,11 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             
             // Position and draw the left car (blue) centered between lanes 0 and 1
             const leftCarX = laneWidth - carWidth / 2;
-            drawCar(ctx, leftCarX, carY, GameConfig.carColors.left, carWidth, carHeight);
+            drawCar(ctx, leftCarX, carY, GameConfig.carColors.left, carWidth, carHeight, 0);
             
             // Position and draw the right car (red) centered between lanes 2 and 3
             const rightCarX = 3 * laneWidth - carWidth / 2;
-            drawCar(ctx, rightCarX, carY, GameConfig.carColors.right, carWidth, carHeight);
+            drawCar(ctx, rightCarX, carY, GameConfig.carColors.right, carWidth, carHeight, 0);
             
             // Draw the start button
             ctx.fillStyle = '#f0f0f0';
@@ -816,23 +916,26 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             
             GameState.accumulator += deltaTime;
 
+            // Check if transition has ended
+            GameState.checkTransitionEnd(currentTime);
+
             if (!GameState.gameStarted) {
                 drawStartScreen(ctx);
-            } else if (GameState.gameStartTransition || GameState.gameRestartTransition || !GameState.gameOver) {
+            } else if (!GameState.gameOver) {
                 while (GameState.accumulator >= GameConfig.fixedDeltaTime) {
                     updateGame(GameConfig.fixedDeltaTime);
                     GameState.accumulator -= GameConfig.fixedDeltaTime;
                 }
                 drawGame(ctx);
             } else {
-                drawGame(ctx); // Això dibuixarà la pantalla de "Game Over"
+                drawGame(ctx); 
             }
             requestAnimationFrame(gameLoop);
         }
 
         function updateGame(deltaTime) {
             GameState.updateCarPositions(deltaTime);
-            if (!GameState.gameStartTransition && !GameState.gameRestartTransition) {
+            if (!GameState.gameStartTransition && !GameState.gameRestartTransition && GameState.gameStarted) {
                 GameState.moveObstacles(deltaTime);
                 GameState.checkCollisions();
                 GameState.createObstacle();
@@ -855,6 +958,8 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
         }
 
         function handleTouch(touch) {
+            if (GameState.gameStartTransition) return;
+
             const rect = canvas.getBoundingClientRect();
             const x = touch.clientX - rect.left;
             const isRightHalf = x > canvas.width / 2;
@@ -884,7 +989,7 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
                 return;
             }
 
-            if (!GameState.gameStarted || GameState.gameOver) return;
+            if (!GameState.gameStarted || GameState.gameOver || GameState.gameStartTransition) return;
 
             const currentTime = performance.now();
 
