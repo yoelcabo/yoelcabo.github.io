@@ -205,6 +205,8 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             car2TransitionStart: 0,
             laneWidth: 0,
             lastAvoidedObstacle: null,
+            gameOverObstacle: null,
+            gameOverCar: null,
 
             initialize() {
                 this.laneWidth = canvas.width / 4;
@@ -229,7 +231,7 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
                 this.gameStarted = false;
                 this.speed = GameConfig.startSpeed;
                 this.lastObstacleTime = 0;
-                this.distanceSinceLastObstacle = 0;
+                this.distanceSinceLastObstacle = GameConfig.baseObstacleDistance;
                 this.highScore = parseInt(localStorage.getItem('highScore') || '0');
                 this.isNewHighScore = false;
             },
@@ -258,6 +260,8 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
                 
                 this.gameStarted = true;
                 this.obstacles = []; // Clear existing obstacles
+                this.gameOverObstacle = null; // Reset game over obstacle
+                this.gameOverCar = null; // Reset game over car
             },
 
             checkTransitionEnd(currentTime) {
@@ -352,6 +356,8 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
 
                     if (obstacle.isCircle && obstacle.y + obstacle.size > canvas.height) {
                         this.gameOver = true;
+                        this.gameOverObstacle = obstacle;
+                        this.gameOverCar = (obstacle.lane < 2) ? this.car1 : this.car2;
                     }
                 });
                 
@@ -387,16 +393,18 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
                     ) {
                         if (obstacle.isCircle) {
                             this.score++;
-                            // Actualitzar el rècord si cal
+                            // Update high score if necessary
                             if (this.score > this.highScore) {
                                 this.highScore = this.score;
                                 localStorage.setItem('highScore', this.highScore.toString());
-                                this.isNewHighScore = true; // Marquem que hem fet un nou rècord
+                                this.isNewHighScore = true;
                             }
-                            // Eliminar l'obstacle recollit
+                            // Remove the collected obstacle
                             this.obstacles = this.obstacles.filter(obs => obs !== obstacle);
                         } else {
                             this.gameOver = true;
+                            this.gameOverObstacle = obstacle;
+                            this.gameOverCar = car;
                         }
                     }
                 });
@@ -554,7 +562,7 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
 
             updateDimensions() {
                 this.size = Math.min(40, GameState.laneWidth * 0.6);
-                this.x = this.lane * GameState.laneWidth + GameState.laneWidth / 2 - this.size / 2;
+                this.x = (this.lane + 0.5) * GameState.laneWidth - this.size / 2;
                 this.y = -this.size;
             }
 
@@ -768,6 +776,14 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             }
             
             drawRestartButton(ctx);
+
+            // Draw the game over obstacle and car
+            if (GameState.gameOverObstacle) {
+                GameState.gameOverObstacle.draw(ctx);
+            }
+            if (GameState.gameOverCar) {
+                GameState.gameOverCar.draw(ctx);
+            }
         }
 
         function drawLowScoreGameOver(ctx) {
@@ -776,7 +792,7 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             ctx.fillText(GameState.score.toString(), canvas.width / 2, canvas.height / 2 - 100);
             
             ctx.font = 'bold 40px Poppins';
-            if (GameState.obstacles.some(obs => obs.isCircle && obs.y + obs.size > canvas.height)) {
+            if (GameState.gameOverObstacle && GameState.gameOverObstacle.isCircle) {
                 ctx.fillText("Se t'ha escapat!", canvas.width / 2, canvas.height / 2 - 20);
                 ctx.font = '24px Poppins';
                 ctx.fillText("agafa tots els cercles", canvas.width / 2, canvas.height / 2 + 30);
