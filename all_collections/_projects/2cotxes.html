@@ -792,14 +792,30 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
         }
 
         // Gestió d'entrada
-        function handleClick(event) {
+        function handleStart(event) {
+            event.preventDefault();
             if (!GameState.gameStarted || GameState.gameOver) {
                 GameState.reset();
                 return;
             }
+            
+            const touches = event.changedTouches;
+            for (let i = 0; i < touches.length; i++) {
+                handleTouch(touches[i]);
+            }
+        }
 
+        function handleMove(event) {
+            event.preventDefault();
+            const touches = event.changedTouches;
+            for (let i = 0; i < touches.length; i++) {
+                handleTouch(touches[i]);
+            }
+        }
+
+        function handleTouch(touch) {
             const rect = canvas.getBoundingClientRect();
-            const x = event.clientX - rect.left;
+            const x = touch.clientX - rect.left;
             const isRightHalf = x > canvas.width / 2;
 
             const currentTime = performance.now();
@@ -905,11 +921,9 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             resizeCanvas();
             hideAuthorInfo();
         });
-        document.getElementById('gameContainer').addEventListener('click', handleClick);
-        document.getElementById('gameContainer').addEventListener('touchstart', (event) => {
-            event.preventDefault();
-            handleClick(event.touches[0]);
-        });
+        document.getElementById('gameContainer').addEventListener('mousedown', handleTouch);
+        document.getElementById('gameContainer').addEventListener('touchstart', handleStart, { passive: false });
+        document.getElementById('gameContainer').addEventListener('touchmove', handleMove, { passive: false });
         document.addEventListener('keydown', handleKeyDown);
     </script>
 </body>
