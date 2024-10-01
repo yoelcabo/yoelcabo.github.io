@@ -10,6 +10,7 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dos cotxes</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         body {
             display: flex;
@@ -110,6 +111,33 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
                 display: none;
             }
         }
+        #fullscreenButton {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 1000;
+            display: none; /* Hide by default */
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.3s ease;
+        }
+        #fullscreenButton:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        @media (max-aspect-ratio: 9/16) {
+            #fullscreenButton {
+                display: flex; /* Show on mobile */
+                bottom: max(10px, env(safe-area-inset-bottom));
+                right: max(10px, env(safe-area-inset-right));
+            }
+        }
     </style>
 </head>
 <body>
@@ -124,6 +152,9 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             <div class="controlKey" data-lane="2">←</div>
             <div class="controlKey" data-lane="3">→</div>
         </div>
+        <button id="fullscreenButton">
+            <span class="material-icons">fullscreen</span>
+        </button>
     </div>
     <script>
         const canvas = document.getElementById('gameCanvas');
@@ -712,12 +743,21 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             ctx.textAlign = 'center';
             ctx.fillText('Dos cotxes', canvas.width / 2, canvas.height / 2 - 40);
             
-            // Dibuixar els cotxes a la part inferior amb el marge ajustat
-            const carY = canvas.height - GameState.car1.height - GameConfig.bottomMargin;
-            GameState.car1.draw(ctx);
-            GameState.car2.draw(ctx);
+            // Calculate the positions for the cars
+            const laneWidth = canvas.width / 4;
+            const carWidth = Math.min(50, laneWidth * 0.8);
+            const carHeight = carWidth * 1.6;
+            const carY = canvas.height - carHeight - GameConfig.bottomMargin;
             
-            // Dibuixar el botó d'inici
+            // Position and draw the left car (blue) centered between lanes 0 and 1
+            const leftCarX = laneWidth - carWidth / 2;
+            drawCar(ctx, leftCarX, carY, GameConfig.carColors.left, carWidth, carHeight);
+            
+            // Position and draw the right car (red) centered between lanes 2 and 3
+            const rightCarX = 3 * laneWidth - carWidth / 2;
+            drawCar(ctx, rightCarX, carY, GameConfig.carColors.right, carWidth, carHeight);
+            
+            // Draw the start button
             ctx.fillStyle = '#f0f0f0';
             ctx.beginPath();
             ctx.roundRect(canvas.width / 2 - 75, canvas.height / 2 + 20, 150, 40, 10);
@@ -909,6 +949,32 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             }
         }
 
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen();
+                } else if (document.documentElement.mozRequestFullScreen) {
+                    document.documentElement.mozRequestFullScreen();
+                } else if (document.documentElement.webkitRequestFullscreen) {
+                    document.documentElement.webkitRequestFullscreen();
+                } else if (document.documentElement.msRequestFullscreen) {
+                    document.documentElement.msRequestFullscreen();
+                }
+                document.getElementById('fullscreenButton').querySelector('.material-icons').textContent = 'fullscreen_exit';
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+                document.getElementById('fullscreenButton').querySelector('.material-icons').textContent = 'fullscreen';
+            }
+        }
+
         // Inicialització
         window.addEventListener('load', () => {
             GameState.initialize();
@@ -930,5 +996,10 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
         document.getElementById('gameContainer').addEventListener('mousedown', handleTouch);
         document.getElementById('gameContainer').addEventListener('touchstart', handleStart, { passive: false });
         document.addEventListener('keydown', handleKeyDown);
+        document.getElementById('fullscreenButton').addEventListener('click', toggleFullScreen);
+        document.addEventListener('fullscreenchange', function() {
+            const icon = document.getElementById('fullscreenButton').querySelector('.material-icons');
+            icon.textContent = document.fullscreenElement ? 'fullscreen_exit' : 'fullscreen';
+        });
     </script>
 </body>
