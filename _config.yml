@@ -17,6 +17,8 @@ collections_dir: all_collections
 collections:
   posts:
     output: true
+  projects:
+    output: true
 
 defaults:
   - scope:
@@ -24,4 +26,9 @@ defaults:
     values:
       layout: "post"
       permalink: /:title/
+  - scope:
+      path: "_projects"
+    values:
+      layout: empty
+      permalink: /:path/
 exclude: ["sitemap.xml", "feed.xml", "LICENSE", "README.md"]
