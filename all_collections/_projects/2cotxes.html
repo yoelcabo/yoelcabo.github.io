@@ -113,8 +113,8 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
         }
         #fullscreenButton {
             position: absolute;
-            bottom: 10px;
-            right: 10px;
+            bottom: 20px;
+            right: 20px;
             background-color: rgba(255, 255, 255, 0.2);
             border: none;
             color: white;
@@ -127,16 +127,10 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             justify-content: center;
             align-items: center;
             transition: background-color 0.3s ease;
+            z-index: 1001;
         }
         #fullscreenButton:hover {
             background-color: rgba(255, 255, 255, 0.3);
-        }
-        @media (max-aspect-ratio: 9/16) {
-            #fullscreenButton {
-                display: flex; /* Show on mobile */
-                bottom: max(10px, env(safe-area-inset-bottom));
-                right: max(10px, env(safe-area-inset-right));
-            }
         }
     </style>
 </head>
@@ -960,6 +954,14 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
         function handleTouch(touch) {
             if (GameState.gameStartTransition) return;
 
+            // Check if the touch is on the fullscreen button
+            const fullscreenButton = document.getElementById('fullscreenButton');
+            const buttonRect = fullscreenButton.getBoundingClientRect();
+            if (touch.clientX >= buttonRect.left && touch.clientX <= buttonRect.right &&
+                touch.clientY >= buttonRect.top && touch.clientY <= buttonRect.bottom) {
+                return; // Ignore touches on the fullscreen button
+            }
+
             const rect = canvas.getBoundingClientRect();
             const x = touch.clientX - rect.left;
             const isRightHalf = x > canvas.width / 2;
@@ -1021,7 +1023,7 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
 
         // Funcions d'utilitat
         function isMobile() {
-            return window.innerWidth / window.innerHeight <= 9/16 || 'ontouchstart' in window;
+            return window.innerWidth / window.innerHeight <= 9/16
         }
 
         function shadeColor(color, percent) {
@@ -1080,6 +1082,19 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             }
         }
 
+        function updateFullscreenButtonVisibility() {
+            const fullscreenButton = document.getElementById('fullscreenButton');
+            if (isMobile()) {
+                fullscreenButton.style.display = 'flex';
+            } else {
+                fullscreenButton.style.display = 'none';
+            }
+        }
+
+        // Call this function on load and resize
+        window.addEventListener('load', updateFullscreenButtonVisibility);
+        window.addEventListener('resize', updateFullscreenButtonVisibility);
+
         // Inicialització
         window.addEventListener('load', () => {
             GameState.initialize();
@@ -1098,13 +1113,23 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             setTimeout(resizeCanvas, 100);
         });
 
-        document.getElementById('gameContainer').addEventListener('mousedown', handleTouch);
+        document.getElementById('gameContainer').addEventListener('mousedown', function(event) {
+            handleTouch(event);
+        });
         document.getElementById('gameContainer').addEventListener('touchstart', handleStart, { passive: false });
         document.addEventListener('keydown', handleKeyDown);
-        document.getElementById('fullscreenButton').addEventListener('click', toggleFullScreen);
+        document.getElementById('fullscreenButton').addEventListener('touchend', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            toggleFullScreen();
+        }, { passive: false });
         document.addEventListener('fullscreenchange', function() {
             const icon = document.getElementById('fullscreenButton').querySelector('.material-icons');
             icon.textContent = document.fullscreenElement ? 'fullscreen_exit' : 'fullscreen';
         });
+
+        // Add this near the end of your JavaScript, just before the event listeners
+        console.log('Is mobile:', isMobile());
+        console.log('Fullscreen button:', document.getElementById('fullscreenButton'));
     </script>
 </body>
