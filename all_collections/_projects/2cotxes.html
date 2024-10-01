@@ -90,13 +90,14 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             #gameContainer {
                 max-width: 100%;
                 max-height: none;
+                height: 100vh; /* Use full viewport height */
             }
             #gameCanvas {
                 border-radius: 0;
-                height: 100%; /* Ocupar tota l'alçada en mbil */
+                height: 100%; /* Occupy full height on mobile */
             }
             #controlsPanel {
-                display: none; /* Amagar els controls en mòbil */
+                display: none; /* Hide controls on mobile */
             }
             #author-info {
                 display: none;
@@ -727,13 +728,16 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             const containerHeight = container.clientHeight;
             const controlsPanelHeight = isMobile() ? 0 : controlsPanel.clientHeight;
             
+            // Adjust for mobile devices to prevent on-screen controls from occluding the game
+            const mobileAdjustment = isMobile() ? window.innerHeight - containerHeight : 0;
+            
             canvas.width = containerWidth;
-            canvas.height = containerHeight - controlsPanelHeight;
+            canvas.height = containerHeight - controlsPanelHeight + mobileAdjustment;
             
             const oldLaneWidth = GameState.laneWidth;
             GameState.laneWidth = canvas.width / 4;
             
-            // Ajustar les posicions dels cotxes i obstacles en lloc de reinicialitzar-los
+            // Adjust the positions of cars and obstacles instead of reinitializing them
             if (GameState.car1 && GameState.car2) {
                 const scaleFactor = GameState.laneWidth / oldLaneWidth;
                 
@@ -794,35 +798,23 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
                 return;
             }
 
-            let lane;
-            if (isMobile()) {
-                const rect = canvas.getBoundingClientRect();
-                const x = event.clientX - rect.left;
-                lane = Math.floor(x / GameState.laneWidth);
-            } else {
-                // Per a desktop, comprovem si el clic és en un botó de control o en el canvas
-                if (event.target.classList.contains('controlKey')) {
-                    lane = parseInt(event.target.getAttribute('data-lane'));
-                } else if (event.target === canvas) {
-                    const rect = canvas.getBoundingClientRect();
-                    const x = event.clientX - rect.left;
-                    lane = Math.floor(x / GameState.laneWidth);
-                } else {
-                    return; // Ignorar clics fora del canvas i dels controls en desktop
-                }
-            }
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const isRightHalf = x > canvas.width / 2;
 
             const currentTime = performance.now();
 
-            if (lane < 2) {
-                // Cotxe esquerre
-                if (GameState.moveCar(GameState.car1, lane)) {
-                    GameState.car1TransitionStart = currentTime;
+            if (isRightHalf) {
+                // Right car
+                const newLane = GameState.car2.lane === 2 ? 3 : 2;
+                if (GameState.moveCar(GameState.car2, newLane)) {
+                    GameState.car2TransitionStart = currentTime;
                 }
             } else {
-                // Cotxe dret
-                if (GameState.moveCar(GameState.car2, lane)) {
-                    GameState.car2TransitionStart = currentTime;
+                // Left car
+                const newLane = GameState.car1.lane === 0 ? 1 : 0;
+                if (GameState.moveCar(GameState.car1, newLane)) {
+                    GameState.car1TransitionStart = currentTime;
                 }
             }
         }
