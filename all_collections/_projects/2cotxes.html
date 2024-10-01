@@ -805,14 +805,6 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             }
         }
 
-        function handleMove(event) {
-            event.preventDefault();
-            const touches = event.changedTouches;
-            for (let i = 0; i < touches.length; i++) {
-                handleTouch(touches[i]);
-            }
-        }
-
         function handleTouch(touch) {
             const rect = canvas.getBoundingClientRect();
             const x = touch.clientX - rect.left;
@@ -923,7 +915,6 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
         });
         document.getElementById('gameContainer').addEventListener('mousedown', handleTouch);
         document.getElementById('gameContainer').addEventListener('touchstart', handleStart, { passive: false });
-        document.getElementById('gameContainer').addEventListener('touchmove', handleMove, { passive: false });
         document.addEventListener('keydown', handleKeyDown);
     </script>
 </body>
