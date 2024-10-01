@@ -28,13 +28,13 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             width: 100%;
             height: 100%;
             max-width: 400px;
-            max-height: 90vh; /* Augmentat per a més alçada en desktop */
+            max-height: 90vh;
             display: flex;
             flex-direction: column;
         }
         #gameCanvas {
             width: 100%;
-            height: calc(100% - 60px); /* Reduït l'espai dels controls en desktop */
+            height: calc(100% - 60px);
             border-radius: 20px 20px 0 0;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             display: block;
@@ -87,17 +87,24 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
         }
         
         @media (max-aspect-ratio: 9/16) {
+            body {
+                height: 100%;
+            }
             #gameContainer {
-                max-width: 100%;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                max-width: none;
                 max-height: none;
-                height: 100vh; /* Use full viewport height */
             }
             #gameCanvas {
                 border-radius: 0;
-                height: 100%; /* Occupy full height on mobile */
+                height: 100%;
             }
             #controlsPanel {
-                display: none; /* Hide controls on mobile */
+                display: none;
             }
             #author-info {
                 display: none;
@@ -363,7 +370,16 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             },
 
             moveCar(car, newLane) {
-                if (newLane >= 0 && newLane <= 3 && newLane !== car.lane) {
+                // Restrict car1 (left car) to lanes 0 and 1
+                if (car === this.car1 && (newLane < 0 || newLane > 1)) {
+                    return false;
+                }
+                // Restrict car2 (right car) to lanes 2 and 3
+                if (car === this.car2 && (newLane < 2 || newLane > 3)) {
+                    return false;
+                }
+
+                if (newLane !== car.lane) {
                     car.lane = newLane;
                     car.targetX = car.lane * this.laneWidth + this.laneWidth / 2 - car.width / 2;
                     return true;
@@ -724,29 +740,22 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             const container = document.getElementById('gameContainer');
             const controlsPanel = document.getElementById('controlsPanel');
             
-            const containerWidth = container.clientWidth;
-            const containerHeight = container.clientHeight;
-            const controlsPanelHeight = isMobile() ? 0 : controlsPanel.clientHeight;
+            if (isMobile()) {
+                // Use window.innerHeight for mobile to get full height
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            } else {
+                // For desktop, use the container's dimensions
+                canvas.width = container.clientWidth;
+                canvas.height = container.clientHeight - (controlsPanel ? controlsPanel.clientHeight : 0);
+            }
             
-            // Adjust for mobile devices to prevent on-screen controls from occluding the game
-            const mobileAdjustment = isMobile() ? window.innerHeight - containerHeight : 0;
-            
-            canvas.width = containerWidth;
-            canvas.height = containerHeight - controlsPanelHeight + mobileAdjustment;
-            
-            const oldLaneWidth = GameState.laneWidth;
             GameState.laneWidth = canvas.width / 4;
             
-            // Adjust the positions of cars and obstacles instead of reinitializing them
             if (GameState.car1 && GameState.car2) {
-                const scaleFactor = GameState.laneWidth / oldLaneWidth;
-                
                 GameState.car1.updateDimensions();
                 GameState.car2.updateDimensions();
-                
-                GameState.obstacles.forEach(obstacle => {
-                    obstacle.updateDimensions();
-                });
+                GameState.obstacles.forEach(obstacle => obstacle.updateDimensions());
             } else {
                 GameState.initialize();
             }
@@ -867,8 +876,7 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
 
         // Funcions d'utilitat
         function isMobile() {
-            const aspectRatio = window.innerWidth / window.innerHeight;
-            return aspectRatio <= 9/16;
+            return window.innerWidth / window.innerHeight <= 9/16 || 'ontouchstart' in window;
         }
 
         function shadeColor(color, percent) {
@@ -913,6 +921,12 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             resizeCanvas();
             hideAuthorInfo();
         });
+
+        // Add this to ensure proper sizing on orientation change
+        window.addEventListener('orientationchange', () => {
+            setTimeout(resizeCanvas, 100);
+        });
+
         document.getElementById('gameContainer').addEventListener('mousedown', handleTouch);
         document.getElementById('gameContainer').addEventListener('touchstart', handleStart, { passive: false });
         document.addEventListener('keydown', handleKeyDown);
