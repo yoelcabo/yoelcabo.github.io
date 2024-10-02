@@ -1175,24 +1175,31 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             const deltaTime = currentTime - GameState.lastTime;
             GameState.lastTime = currentTime;
             
-            GameState.accumulator += deltaTime;
-
             GameState.checkTransitionEnd(currentTime);
 
             if (GameState.gameStarted && !GameState.gameOver) {
-                while (GameState.accumulator >= GameConfig.fixedDeltaTime) {
-                    updateGame(GameConfig.fixedDeltaTime);
-                    GameState.accumulator -= GameConfig.fixedDeltaTime;
-                }
+                gameUpdate(deltaTime);
             }
-            StartScreen.updateVisibility();
-            GameOverScreen.updateVisibility();
-            GameScreen.updateVisibility();
+            updateVisibility();
 
             requestAnimationFrame(gameLoop);
         }
 
-        function updateGame(deltaTime) {
+        function updateVisibility() {
+            StartScreen.updateVisibility();
+            GameOverScreen.updateVisibility();
+            GameScreen.updateVisibility();
+        }
+
+        function gameUpdate(deltaTime) {
+            GameState.accumulator += deltaTime;
+            while (GameState.accumulator >= GameConfig.fixedDeltaTime) {
+                gameStep(GameConfig.fixedDeltaTime);
+                GameState.accumulator -= GameConfig.fixedDeltaTime;
+            }
+        }
+
+        function gameStep(deltaTime) {
             GameState.updateCarPositions(deltaTime);
             if (!GameState.gameStartTransition && !GameState.gameRestartTransition && GameState.gameStarted) {
                 GameState.moveObstacles(deltaTime);
