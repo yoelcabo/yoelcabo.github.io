@@ -390,28 +390,32 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             checkCollisions() {
                 this.obstacles.forEach(obstacle => {
                     const car = (obstacle.lane < 2) ? this.car1 : this.car2;
-                    if (
-                        car.y < obstacle.y + obstacle.size &&
-                        car.y + car.height > obstacle.y &&
-                        car.lane === obstacle.lane
-                    ) {
-                        if (obstacle.isCircle) {
-                            this.score++;
-                            // Update high score if necessary
-                            if (this.score > this.highScore) {
-                                this.highScore = this.score;
-                                localStorage.setItem('highScore', this.highScore.toString());
-                                this.isNewHighScore = true;
+                    
+                    // Check if the first half of the car overlaps with the obstacle
+                    if (car.y < obstacle.y + obstacle.size && car.y + car.height / 2 > obstacle.y) {
+                        const carRightEdge = car.x + car.width;
+                        const obstacleRightEdge = obstacle.x + obstacle.size;
+                        
+                        // Check for overlap in x-axis
+                        if (car.x < obstacleRightEdge && carRightEdge > obstacle.x) {
+                            if (obstacle.isCircle) {
+                                this.score++;
+                                // Update high score if necessary
+                                if (this.score > this.highScore) {
+                                    this.highScore = this.score;
+                                    localStorage.setItem('highScore', this.highScore.toString());
+                                    this.isNewHighScore = true;
+                                }
+                                // Remove the collected obstacle
+                                obstacle.remove();
+                                this.obstacles = this.obstacles.filter(obs => obs !== obstacle);
+                            } else {
+                                this.gameOver = true;
+                                this.gameOverObstacle = obstacle;
+                                this.gameOverCar = car;
+                                this.gameOverObstacle.highlight()
+                                this.gameOverCar.highlight()
                             }
-                            // Remove the collected obstacle
-                            obstacle.remove();
-                            this.obstacles = this.obstacles.filter(obs => obs !== obstacle);
-                        } else {
-                            this.gameOver = true;
-                            this.gameOverObstacle = obstacle;
-                            this.gameOverCar = car;
-                            this.gameOverObstacle.highlight()
-                            this.gameOverCar.highlight()
                         }
                     }
                 });
@@ -1325,14 +1329,6 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
                 authorInfo.style.display = 'none';
             } else {
                 authorInfo.style.display = 'block';
-            }
-        }
-
-        // Modify the updateFullscreenButtonVisibility function to always hide the button
-        function updateFullscreenButtonVisibility() {
-            const fullscreenButton = document.getElementById('fullscreenButton');
-            if (fullscreenButton) {
-                fullscreenButton.style.display = 'none';
             }
         }
 
