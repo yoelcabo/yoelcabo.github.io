@@ -33,12 +33,11 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             display: flex;
             flex-direction: column;
         }
-        #gameCanvas {
+        #gameSVG {
             width: 100%;
-            height: calc(100% - 60px);
+            flex-grow: 1;
             border-radius: 20px 20px 0 0;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            display: block;
         }
         #controlsPanel {
             width: 100%;
@@ -49,7 +48,6 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             display: flex;
             justify-content: space-around;
             align-items: center;
-            margin-top: -4px;
         }
         .controlKey {
             width: 40px;
@@ -100,12 +98,12 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
                 max-width: none;
                 max-height: none;
             }
-            #gameCanvas {
+            #gameSVG {
+                height: 100%; /* Full height on mobile */
                 border-radius: 0;
-                height: 100%;
             }
             #controlsPanel {
-                display: none;
+                display: none; /* Hide controls on mobile as per original design */
             }
             #author-info {
                 display: none;
@@ -132,6 +130,13 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
         #fullscreenButton:hover {
             background-color: rgba(255, 255, 255, 0.3);
         }
+        #gameSVG {
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* This allows clicks to pass through to elements below */
+        }
     </style>
 </head>
 <body>
@@ -139,7 +144,7 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
         <a href="{{ '/' | relative_url }}">Yoel Cabo</a>
     </div>
     <div id="gameContainer">
-        <canvas id="gameCanvas" width="400" height="650"></canvas>
+        <svg id="gameSVG" width="400" height="650"></svg>
         <div id="controlsPanel">
             <div class="controlKey" data-lane="0">A</div>
             <div class="controlKey" data-lane="1">D</div>
@@ -151,9 +156,6 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
         </button>
     </div>
     <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-
         // Configuració del joc
         const GameConfig = {
             startSpeed: 300,
@@ -209,10 +211,10 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             gameOverCar: null,
 
             initialize() {
-                this.laneWidth = canvas.width / 4;
+                this.laneWidth = GameState.width / 4;
                 const carWidth = Math.min(50, this.laneWidth * 0.8);
                 const carHeight = carWidth * 1.6;
-                const initialY = canvas.height - GameConfig.bottomMargin - carHeight;
+                const initialY = GameState.height - GameConfig.bottomMargin - carHeight;
                 
                 // Initialize cars at the center of their respective sides
                 const leftCenterX = this.laneWidth;
@@ -228,6 +230,8 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
                 this.obstacles = [];
                 this.score = 0;
                 this.gameOver = false;
+                this.gameOverObstacle = null;
+                this.gameOverCar = null;
                 this.gameStarted = false;
                 this.speed = GameConfig.startSpeed;
                 this.lastObstacleTime = 0;
@@ -246,6 +250,10 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
                     const car1CurrentX = this.car1.x;
                     const car2CurrentX = this.car2.x;
                     
+                    this.car1.remove();
+                    this.car2.remove();
+                    this.obstacles.forEach(obstacle => obstacle.remove());
+
                     this.initialize();
                     
                     // Set the current positions as start positions
@@ -259,9 +267,7 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
                 }
                 
                 this.gameStarted = true;
-                this.obstacles = []; // Clear existing obstacles
-                this.gameOverObstacle = null; // Reset game over obstacle
-                this.gameOverCar = null; // Reset game over car
+                this.isNewHighScore = false; 
             },
 
             checkTransitionEnd(currentTime) {
@@ -346,27 +352,28 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
                 this.distanceSinceLastObstacle += moveDistance;
 
                 this.obstacles.forEach(obstacle => {
-                    obstacle.y += moveDistance;
+                    obstacle.move(moveDistance);
                     
-                    if (!obstacle.isCircle && !obstacle.avoided && obstacle.y > canvas.height) {
+                    if (!obstacle.isCircle && !obstacle.avoided && obstacle.y > this.height) {
                         this.score++;
                         obstacle.avoided = true;
                         this.lastAvoidedObstacle = obstacle;
                     }
 
-                    if (obstacle.isCircle && obstacle.y + obstacle.size > canvas.height) {
+                    if (obstacle.isCircle && obstacle.y + obstacle.size > this.height) {
                         this.gameOver = true;
                         this.gameOverObstacle = obstacle;
                         this.gameOverCar = (obstacle.lane < 2) ? this.car1 : this.car2;
+                        this.gameOverObstacle.highlight();
+                        this.gameOverCar.highlight();
+                    }
+
+                    // Remove obstacles that are off-screen
+                    if (obstacle.y > this.height + obstacle.size) {
+                        obstacle.remove();
+                        this.obstacles = this.obstacles.filter(obs => obs !== obstacle);
                     }
                 });
-                
-                this.obstacles = this.obstacles.filter(obstacle => obstacle.y < canvas.height || obstacle === this.lastAvoidedObstacle);
-                
-                if (this.lastAvoidedObstacle && this.lastAvoidedObstacle.y > canvas.height + this.lastAvoidedObstacle.size) {
-                    this.obstacles = this.obstacles.filter(obs => obs !== this.lastAvoidedObstacle);
-                    this.lastAvoidedObstacle = null;
-                }
                 
                 this.ensureMinimumObstacles();
             },
@@ -400,11 +407,14 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
                                 this.isNewHighScore = true;
                             }
                             // Remove the collected obstacle
+                            obstacle.remove();
                             this.obstacles = this.obstacles.filter(obs => obs !== obstacle);
                         } else {
                             this.gameOver = true;
                             this.gameOverObstacle = obstacle;
                             this.gameOverCar = car;
+                            this.gameOverObstacle.highlight()
+                            this.gameOverCar.highlight()
                         }
                     }
                 });
@@ -482,6 +492,13 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
                     return true;
                 }
                 return false;
+            },
+
+            removeObstacle(obstacle) {
+                if (obstacle.svgElement && obstacle.svgElement.parentNode) {
+                    obstacle.svgElement.parentNode.removeChild(obstacle.svgElement);
+                }
+                this.obstacles = this.obstacles.filter(obs => obs !== obstacle);
             }
         };
 
@@ -495,13 +512,30 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
                 this.tiltVelocity = 0;
                 this.updateDimensions();
                 this.targetX = this.x;
-                this.startX = this.x; // Add this line
+                this.startX = this.x;
+                this.svgElement = this.createSVGElement();
+                console.log("car created")
+            }
+
+            createSVGElement() {
+                const element = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+                element.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', `#${this.color === GameConfig.carColors.left ? 'leftCar' : 'rightCar'}`);
+                document.getElementById('layer-cars').appendChild(element);
+                return element;
+            }
+            
+            highlight() {
+                const topLayer = document.getElementById('layer-gameOver');
+                if (this.svgElement && this.svgElement.parentNode && topLayer) {
+                    this.svgElement.parentNode.removeChild(this.svgElement);
+                    topLayer.appendChild(this.svgElement);
+                }
             }
 
             updateDimensions() {
                 this.width = Math.min(50, GameState.laneWidth * 0.8);
                 this.height = this.width * 1.6;
-                this.y = canvas.height - this.height - GameConfig.bottomMargin;
+                this.y = GameState.height - this.height - GameConfig.bottomMargin;
                 this.updatePosition();
             }
 
@@ -512,8 +546,10 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
                 }
             }
 
-            draw(ctx) {
-                drawCar(ctx, this.x, this.y, this.color, this.width, this.height, this.tilt);
+            updateVisibility() {
+                this.svgElement.setAttribute('x', this.x);
+                this.svgElement.setAttribute('y', this.y);
+                this.svgElement.setAttribute('transform', `rotate(${this.tilt * (180 / Math.PI)}, ${this.x + this.width / 2}, ${this.y + this.height / 2})`);
             }
 
             move(progress) {
@@ -549,6 +585,12 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
                 // Clamp tilt to max values
                 this.tilt = Math.max(Math.min(this.tilt, maxTilt), -maxTilt);
             }
+
+            remove() {
+                if (this.svgElement && this.svgElement.parentNode) {
+                    this.svgElement.parentNode.removeChild(this.svgElement);
+                }
+            }
         }
 
         class Obstacle {
@@ -558,6 +600,31 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
                 this.color = color;
                 this.avoided = false;
                 this.updateDimensions();
+                this.svgElement = this.createSVGElement();
+            }
+
+            createSVGElement() {
+                const element = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+                element.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', `#${this.getPresetId()}`);
+                document.getElementById('layer-obstacles').appendChild(element);
+                return element;
+            }
+
+            highlight() {
+                const topLayer = document.getElementById('layer-gameOver');
+                if (this.svgElement && this.svgElement.parentNode && topLayer) {
+                    this.svgElement.parentNode.removeChild(this.svgElement);
+                    topLayer.appendChild(this.svgElement);
+                }
+            }
+
+            getPresetId() {
+                const isLeft = this.lane < 2;
+                if (this.isCircle) {
+                    return isLeft ? 'leftCircle' : 'rightCircle';
+                } else {
+                    return isLeft ? 'leftSquare' : 'rightSquare';
+                }
             }
 
             updateDimensions() {
@@ -566,341 +633,529 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
                 this.y = -this.size;
             }
 
-            draw(ctx) {
-                drawObstacle(ctx, this.x, this.y, this.isCircle, this.color, this.size);
+            updateVisibility() {
+                this.svgElement.setAttribute('x', this.x);
+                this.svgElement.setAttribute('y', this.y);
             }
 
             move(distance) {
                 this.y += distance;
             }
-        }
 
-        function drawCar(ctx, x, y, color, width, height, tilt) {
-            ctx.save();
-            ctx.translate(x + width / 2, y + height / 2);
-            ctx.rotate(tilt);
-            ctx.translate(-width / 2, -height / 2);
-
-            // Cos principal del cotxe
-            ctx.fillStyle = color;
-            ctx.beginPath();
-            ctx.roundRect(0, 0, width, height, 15);
-            ctx.fill();
-
-            // Sostre
-            ctx.fillStyle = shadeColor(color, -20);
-            ctx.beginPath();
-            ctx.roundRect(5, 15, width - 10, height - 35, 10);
-            ctx.fill();
-
-            // Finestra
-            const gradient = ctx.createLinearGradient(0, 20, 0, height - 20);
-            gradient.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
-            gradient.addColorStop(1, 'rgba(255, 255, 255, 0.3)');
-            ctx.fillStyle = gradient;
-            ctx.beginPath();
-            ctx.roundRect(8, 20, width - 16, height - 45, 5);
-            ctx.fill();
-
-            // Llums davanters
-            ctx.fillStyle = '#FFEB3B';
-            ctx.beginPath();
-            ctx.ellipse(10, 5, 5, 3, 0, 0, Math.PI * 2);
-            ctx.ellipse(width - 10, 5, 5, 3, 0, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Llums posteriors
-            ctx.fillStyle = '#FFA000';  // Canviat a un color taronja
-            ctx.beginPath();
-            ctx.ellipse(10, height - 5, 5, 3, 0, 0, Math.PI * 2);
-            ctx.ellipse(width - 10, height - 5, 5, 3, 0, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.restore();
-        }
-
-        function drawObstacle(ctx, x, y, isCircle, color, size) {
-            ctx.save();
-            ctx.translate(x + size / 2, y + size / 2);
-            
-            // Ombra
-            ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
-            ctx.shadowBlur = 10;
-            ctx.shadowOffsetY = 5;
-
-            if (isCircle) {
-                drawCircleObstacle(ctx, color, size);
-            } else {
-                drawSquareObstacle(ctx, color, size);
-            }
-            
-            ctx.restore();
-        }
-
-        function drawCircleObstacle(ctx, color, size) {
-            // Cercle exterior (mateix color que el cotxe)
-            ctx.fillStyle = color;
-            ctx.beginPath();
-            ctx.arc(0, 0, size / 2, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Anell blanc
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-            ctx.beginPath();
-            ctx.arc(0, 0, size * 0.4, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Cercle interior (mateix color que el cotxe)
-            ctx.fillStyle = color;
-            ctx.beginPath();
-            ctx.arc(0, 0, size * 0.3, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Punt central
-            ctx.fillStyle = 'white';
-            ctx.beginPath();
-            ctx.arc(0, 0, size * 0.1, 0, Math.PI * 2);
-            ctx.fill();
-        }
-
-        function drawSquareObstacle(ctx, color, size) {
-            // Quadrat (color més fosc)
-            ctx.fillStyle = color;
-            ctx.beginPath();
-            ctx.roundRect(-size / 2, -size / 2, size, size, size / 5);
-            ctx.fill();
-
-            // Símbol d'advertència
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
-            ctx.lineWidth = 4;
-            ctx.beginPath();
-            ctx.moveTo(-size / 4, -size / 4);
-            ctx.lineTo(size / 4, size / 4);
-            ctx.moveTo(size / 4, -size / 4);
-            ctx.lineTo(-size / 4, size / 4);
-            ctx.stroke();
-        }
-
-        function drawGame(ctx) {
-            drawGameBackground(ctx);
-            drawLanes(ctx);
-            GameState.car1.draw(ctx);
-            GameState.car2.draw(ctx);
-            GameState.obstacles.forEach(obstacle => obstacle.draw(ctx));
-            drawScore(ctx);
-
-            if (GameState.gameOver) {
-                drawGameOver(ctx);
-            }
-        }
-
-        function drawGameBackground(ctx) {
-            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            gradient.addColorStop(0, '#1A237E');
-            gradient.addColorStop(1, '#311B92');
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-        }
-
-        function drawLanes(ctx) {
-            ctx.lineWidth = 2;
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
-            for (let i = 1; i < 4; i++) {
-                if (i === 2) {
-                    // Línia central doble contínua
-                    ctx.beginPath();
-                    ctx.moveTo(i * GameState.laneWidth - 2, 0);
-                    ctx.lineTo(i * GameState.laneWidth - 2, canvas.height);
-                    ctx.stroke();
-                    ctx.beginPath();
-                    ctx.moveTo(i * GameState.laneWidth + 2, 0);
-                    ctx.lineTo(i * GameState.laneWidth + 2, canvas.height);
-                    ctx.stroke();
-                } else {
-                    // Línies discontínues
-                    ctx.beginPath();
-                    ctx.setLineDash([20, 60]);
-                    ctx.moveTo(i * GameState.laneWidth, 0);
-                    ctx.lineTo(i * GameState.laneWidth, canvas.height);
-                    ctx.stroke();
-                    ctx.setLineDash([]);
+            remove() {
+                if (this.svgElement && this.svgElement.parentNode) {
+                    this.svgElement.parentNode.removeChild(this.svgElement);
                 }
             }
         }
 
         function drawScore(ctx) {
-            const scoreColor = GameState.isNewHighScore ? 'rgba(255, 215, 0, 0.2)' : 'rgba(255, 255, 255, 0.1)';
-            ctx.fillStyle = scoreColor;
-            ctx.beginPath();
-            ctx.roundRect(10, 10, 80, 40, 20);
-            ctx.fill();
+            const svg = document.getElementById('gameSVG');
+            
+            // Remove previous score elements
+            const oldScoreElements = svg.querySelectorAll('.score-element');
+            oldScoreElements.forEach(el => el.remove());
 
-            if (GameState.isNewHighScore) {
-                const gradient = ctx.createLinearGradient(10, 10, 90, 50);
-                gradient.addColorStop(0, 'rgba(255, 223, 0, 0.9)');
-                gradient.addColorStop(1, 'rgba(255, 223, 0, 0.7)');
-                ctx.fillStyle = gradient;
-            } else {
-                ctx.fillStyle = 'white';
-            }
-            ctx.font = 'bold 24px Poppins';
-            ctx.textAlign = 'center';
-            ctx.fillText(GameState.score.toString(), 50, 38);
+            // Score background
+            const scoreBackground = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            scoreBackground.setAttribute('x', '10');
+            scoreBackground.setAttribute('y', '10');
+            scoreBackground.setAttribute('width', '80');
+            scoreBackground.setAttribute('height', '40');
+            scoreBackground.setAttribute('rx', '20');
+            scoreBackground.setAttribute('ry', '20');
+            scoreBackground.setAttribute('fill', GameState.isNewHighScore ? 'rgba(255, 215, 0, 0.2)' : 'rgba(255, 255, 255, 0.1)');
+            scoreBackground.classList.add('score-element');
+            svg.appendChild(scoreBackground);
 
+            // Score text
+            const scoreText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            scoreText.setAttribute('x', '50');
+            scoreText.setAttribute('y', '38');
+            scoreText.setAttribute('text-anchor', 'middle');
+            scoreText.setAttribute('font-family', 'Poppins');
+            scoreText.setAttribute('font-size', '24');
+            scoreText.setAttribute('font-weight', 'bold');
+            scoreText.setAttribute('fill', GameState.isNewHighScore ? 'rgba(255, 223, 0, 0.9)' : 'white');
+            scoreText.textContent = GameState.score.toString();
+            scoreText.classList.add('score-element');
+            svg.appendChild(scoreText);
+
+            // High score (if applicable)
             if (GameState.highScore >= 10 && !GameState.isNewHighScore) {
-                ctx.fillStyle = 'rgba(255, 215, 0, 0.1)';
-                ctx.beginPath();
-                ctx.roundRect(canvas.width - 90, 10, 80, 40, 20);
-                ctx.fill();
+                const highScoreBackground = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                highScoreBackground.setAttribute('x', GameState.width - 90);
+                highScoreBackground.setAttribute('y', '10');
+                highScoreBackground.setAttribute('width', '80');
+                highScoreBackground.setAttribute('height', '40');
+                highScoreBackground.setAttribute('rx', '20');
+                highScoreBackground.setAttribute('ry', '20');
+                highScoreBackground.setAttribute('fill', 'rgba(255, 215, 0, 0.1)');
+                highScoreBackground.classList.add('score-element');
+                svg.appendChild(highScoreBackground);
 
-                const recordGradient = ctx.createLinearGradient(canvas.width - 90, 10, canvas.width - 10, 50);
-                recordGradient.addColorStop(0, 'rgba(255, 223, 0, 0.9)');
-                recordGradient.addColorStop(1, 'rgba(255, 223, 0, 0.7)');
-                ctx.fillStyle = recordGradient;
-                ctx.font = 'bold 24px Poppins';
-                ctx.textAlign = 'center';
-                ctx.fillText(GameState.highScore.toString(), canvas.width - 50, 38);
+                const highScoreText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                highScoreText.setAttribute('x', GameState.width - 50);
+                highScoreText.setAttribute('y', '38');
+                highScoreText.setAttribute('text-anchor', 'middle');
+                highScoreText.setAttribute('font-family', 'Poppins');
+                highScoreText.setAttribute('font-size', '24');
+                highScoreText.setAttribute('font-weight', 'bold');
+                highScoreText.setAttribute('fill', 'rgba(255, 223, 0, 0.9)');
+                highScoreText.textContent = GameState.highScore.toString();
+                highScoreText.classList.add('score-element');
+                svg.appendChild(highScoreText);
             }
         }
 
-        function drawGameOver(ctx) {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            ctx.textAlign = 'center';
-            
-            if (GameState.score < 10) {
-                drawLowScoreGameOver(ctx);
-            } else {
-                drawHighScoreGameOver(ctx);
-            }
-            
-            drawRestartButton(ctx);
+        const GameOverScreen = {
+            group: null,
+            lowScoreElements: null,
+            highScoreElements: null,
 
-            // Draw the game over obstacle and car
-            if (GameState.gameOverObstacle) {
-                GameState.gameOverObstacle.draw(ctx);
-            }
-            if (GameState.gameOverCar) {
-                GameState.gameOverCar.draw(ctx);
-            }
-        }
+            draw() {
+                const svg = document.getElementById('layer-gameOver');
 
-        function drawLowScoreGameOver(ctx) {
-            ctx.fillStyle = 'white';
-            ctx.font = 'bold 80px Poppins';
-            ctx.fillText(GameState.score.toString(), canvas.width / 2, canvas.height / 2 - 100);
-            
-            ctx.font = 'bold 40px Poppins';
-            if (GameState.gameOverObstacle && GameState.gameOverObstacle.isCircle) {
-                ctx.fillText("Se t'ha escapat!", canvas.width / 2, canvas.height / 2 - 20);
-                ctx.font = '24px Poppins';
-                ctx.fillText("agafa tots els cercles", canvas.width / 2, canvas.height / 2 + 30);
-            } else {
-                ctx.fillText('Has xocat!', canvas.width / 2, canvas.height / 2 - 20);
-                ctx.font = '24px Poppins';
-                ctx.fillText("evita els quadrats", canvas.width / 2, canvas.height / 2 + 30);
-            }
-        }
+                // Remove old group if it exists
+                if (this.group) {
+                    svg.removeChild(this.group);
+                }
 
-        function drawHighScoreGameOver(ctx) {
-            ctx.font = 'bold 80px Poppins';
-            if (GameState.isNewHighScore) {
-                const gradient = ctx.createLinearGradient(
-                    canvas.width / 2 - 100, canvas.height / 2 - 40,
-                    canvas.width / 2 + 100, canvas.height / 2 + 40
-                );
-                gradient.addColorStop(0, 'rgba(255, 223, 0, 0.9)');
-                gradient.addColorStop(1, 'rgba(255, 223, 0, 0.7)');
-                ctx.fillStyle = gradient;
-                ctx.fillText(GameState.score.toString(), canvas.width / 2, canvas.height / 2);
+                // Create new group
+                this.group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                this.group.setAttribute('id', 'gameOverScreenGroup');
+                svg.appendChild(this.group);
+
+                // Semi-transparent overlay
+                const overlay = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                overlay.setAttribute('width', GameState.width);
+                overlay.setAttribute('height', GameState.height);
+                overlay.setAttribute('fill', 'rgba(0, 0, 0, 0.7)');
+                this.group.appendChild(overlay);
+
+                this.drawLowScoreGameOver();
+                this.drawHighScoreGameOver();
+                this.drawRestartButton();
+
+                this.updateVisibility();
+            },
+
+            drawLowScoreGameOver() {
+                this.lowScoreElements = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                this.group.appendChild(this.lowScoreElements);
+
+                const scoreText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                scoreText.setAttribute('x', GameState.width / 2);
+                scoreText.setAttribute('y', GameState.height / 2 - 100);
+                scoreText.setAttribute('text-anchor', 'middle');
+                scoreText.setAttribute('font-family', 'Poppins');
+                scoreText.setAttribute('font-size', '80');
+                scoreText.setAttribute('font-weight', 'bold');
+                scoreText.setAttribute('fill', 'white');
+                scoreText.textContent = '0';  // Will be updated later
+                this.lowScoreElements.appendChild(scoreText);
+
+                const messageText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                messageText.setAttribute('x', GameState.width / 2);
+                messageText.setAttribute('y', GameState.height / 2 - 20);
+                messageText.setAttribute('text-anchor', 'middle');
+                messageText.setAttribute('font-family', 'Poppins');
+                messageText.setAttribute('font-size', '40');
+                messageText.setAttribute('font-weight', 'bold');
+                messageText.setAttribute('fill', 'white');
+                this.lowScoreElements.appendChild(messageText);
+
+                const instructionText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                instructionText.setAttribute('x', GameState.width / 2);
+                instructionText.setAttribute('y', GameState.height / 2 + 30);
+                instructionText.setAttribute('text-anchor', 'middle');
+                instructionText.setAttribute('font-family', 'Poppins');
+                instructionText.setAttribute('font-size', '24');
+                instructionText.setAttribute('fill', 'white');
+                this.lowScoreElements.appendChild(instructionText);
+            },
+
+            drawHighScoreGameOver() {
+                this.highScoreElements = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                this.group.appendChild(this.highScoreElements);
+
+                const scoreText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                scoreText.setAttribute('x', GameState.width / 2);
+                scoreText.setAttribute('y', GameState.height / 2);
+                scoreText.setAttribute('text-anchor', 'middle');
+                scoreText.setAttribute('font-family', 'Poppins');
+                scoreText.setAttribute('font-size', '80');
+                scoreText.setAttribute('font-weight', 'bold');
+                scoreText.setAttribute('fill', 'white');
+                scoreText.textContent = '0';  // Will be updated later
+                this.highScoreElements.appendChild(scoreText);
+
+                const newRecordText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                newRecordText.setAttribute('x', GameState.width / 2);
+                newRecordText.setAttribute('y', GameState.height / 2 - 80);
+                newRecordText.setAttribute('text-anchor', 'middle');
+                newRecordText.setAttribute('font-family', 'Poppins');
+                newRecordText.setAttribute('font-size', '24');
+                newRecordText.setAttribute('font-weight', 'bold');
+                newRecordText.setAttribute('fill', 'url(#goldGradient)');
+                newRecordText.textContent = 'NOU RÈCORD!';
+                this.highScoreElements.appendChild(newRecordText);
+            },
+
+            drawRestartButton() {
+                const buttonGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+
+                const buttonRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                buttonRect.setAttribute('x', GameState.width / 2 - 75);
+                buttonRect.setAttribute('y', GameState.height / 2 + 80);
+                buttonRect.setAttribute('width', '150');
+                buttonRect.setAttribute('height', '40');
+                buttonRect.setAttribute('rx', '10');
+                buttonRect.setAttribute('ry', '10');
+                buttonRect.setAttribute('fill', '#f0f0f0');
+                buttonRect.setAttribute('stroke', '#999');
+                buttonRect.setAttribute('stroke-width', '2');
+                buttonGroup.appendChild(buttonRect);
+
+                const buttonText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                buttonText.setAttribute('x', GameState.width / 2);
+                buttonText.setAttribute('y', GameState.height / 2 + 108);
+                buttonText.setAttribute('text-anchor', 'middle');
+                buttonText.setAttribute('font-family', 'Poppins');
+                buttonText.setAttribute('font-size', '24');
+                buttonText.setAttribute('font-weight', 'bold');
+                buttonText.setAttribute('fill', '#333');
+                buttonText.textContent = isMobile() ? 'TOCA' : 'ESPAI';
+                buttonGroup.appendChild(buttonText);
+
+                this.group.appendChild(buttonGroup);
+
+                const instructionText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                instructionText.setAttribute('x', GameState.width / 2);
+                instructionText.setAttribute('y', GameState.height / 2 + 150);
+                instructionText.setAttribute('text-anchor', 'middle');
+                instructionText.setAttribute('font-family', 'Poppins');
+                instructionText.setAttribute('font-size', '20');
+                instructionText.setAttribute('fill', 'white');
+                instructionText.textContent = 'per tornar-hi';
+                this.group.appendChild(instructionText);
+            },
+
+            updateVisibility() {
+                if (GameState.gameOver) {
+                    this.show();
+                } else {
+                    this.hide();
+                }
+
+                if (GameState.score < 10) {
+                    this.lowScoreElements.style.display = 'block';
+                    this.highScoreElements.style.display = 'none';
+                    
+                    const scoreText = this.lowScoreElements.querySelector('text');
+                    scoreText.textContent = GameState.score.toString();
+
+                    const messageText = this.lowScoreElements.querySelectorAll('text')[1];
+                    messageText.textContent = GameState.gameOverObstacle && GameState.gameOverObstacle.isCircle ? "Se t'ha escapat!" : 'Has xocat!';
+
+                    const instructionText = this.lowScoreElements.querySelectorAll('text')[2];
+                    instructionText.textContent = GameState.gameOverObstacle && GameState.gameOverObstacle.isCircle ? "agafa tots els cercles" : "evita els quadrats";
+                } else {
+                    this.lowScoreElements.style.display = 'none';
+                    this.highScoreElements.style.display = 'block';
+
+                    const scoreText = this.highScoreElements.querySelector('text');
+                    scoreText.textContent = GameState.score.toString();
+                    scoreText.setAttribute('fill', GameState.isNewHighScore ? 'url(#goldGradient)' : 'white');
+
+                    const newRecordText = this.highScoreElements.querySelectorAll('text')[1];
+                    newRecordText.style.display = GameState.isNewHighScore ? 'block' : 'none';
+                }
+            },
+
+            show() {
+                if (this.group) {
+                    this.group.style.display = 'block';
+                } else {
+                    this.draw();
+                }
+            },
+
+            hide() {
+                if (this.group) {
+                    this.group.style.display = 'none';
+                }
+            }
+        };
+
+        const GameScreen = {
+            group: null,
+            laneLines: [],
+            scoreElements: [],
+
+            draw() {
+                const svg = document.getElementById('layer-ui');
+
+                // Remove old group if it exists
+                if (this.group) {
+                    svg.removeChild(this.group);
+                }
+
+                // Create new group
+                this.group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                this.group.setAttribute('id', 'gameScreenGroup');
+                svg.appendChild(this.group);
+
+                this.drawBackground();
+                this.drawLanes();
+                this.drawScore();
+            },
+
+            drawBackground() {
+                const background = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                background.setAttribute('width', '100%');
+                background.setAttribute('height', '100%');
+                background.setAttribute('fill', 'url(#gameBackgroundGradient)');
+                this.group.insertBefore(background, this.group.firstChild);
+            },
+
+            drawLanes() {
+                this.laneLines = [];
+                for (let i = 1; i < 4; i++) {
+                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line.setAttribute('x1', i * GameState.laneWidth);
+                    line.setAttribute('y1', 0);
+                    line.setAttribute('x2', i * GameState.laneWidth);
+                    line.setAttribute('y2', GameState.height);
+                    line.setAttribute('stroke', 'rgba(255, 255, 255, 0.2)');
+                    line.setAttribute('stroke-width', '2');
+
+                    if (i === 2) {
+                        // Central double solid line
+                        line.setAttribute('stroke-width', '4');
+                    } else {
+                        // Dashed lines
+                        line.setAttribute('stroke-dasharray', '20, 60');
+                    }
+
+                    this.group.appendChild(line);
+                    this.laneLines.push(line);
+                }
+            },
+
+            drawScore() {
+                this.scoreElements = [];
+
+                // Score background
+                const scoreBackground = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                scoreBackground.setAttribute('x', '10');
+                scoreBackground.setAttribute('y', '10');
+                scoreBackground.setAttribute('width', '80');
+                scoreBackground.setAttribute('height', '40');
+                scoreBackground.setAttribute('rx', '20');
+                scoreBackground.setAttribute('ry', '20');
+                scoreBackground.setAttribute('fill', GameState.isNewHighScore ? 'rgba(255, 215, 0, 0.2)' : 'rgba(255, 255, 255, 0.1)');
+                this.group.appendChild(scoreBackground);
+                this.scoreElements.push(scoreBackground);
+
+                // Score text
+                const scoreText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                scoreText.setAttribute('x', '50');
+                scoreText.setAttribute('y', '38');
+                scoreText.setAttribute('text-anchor', 'middle');
+                scoreText.setAttribute('font-family', 'Poppins');
+                scoreText.setAttribute('font-size', '24');
+                scoreText.setAttribute('font-weight', 'bold');
+                scoreText.setAttribute('fill', GameState.isNewHighScore ? 'rgba(255, 223, 0, 0.9)' : 'white');
+                scoreText.textContent = GameState.score.toString();
+                this.group.appendChild(scoreText);
+                this.scoreElements.push(scoreText);
+
+                const highScoreBackground = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                highScoreBackground.setAttribute('x', GameState.width - 90);
+                highScoreBackground.setAttribute('y', '10');
+                highScoreBackground.setAttribute('width', '80');
+                highScoreBackground.setAttribute('height', '40');
+                highScoreBackground.setAttribute('rx', '20');
+                highScoreBackground.setAttribute('ry', '20');
+                highScoreBackground.setAttribute('fill', 'rgba(255, 215, 0, 0.1)');
+                this.group.appendChild(highScoreBackground);
+                this.scoreElements.push(highScoreBackground);
+
+                const highScoreText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                highScoreText.setAttribute('x', GameState.width - 50);
+                highScoreText.setAttribute('y', '38');
+                highScoreText.setAttribute('text-anchor', 'middle');
+                highScoreText.setAttribute('font-family', 'Poppins');
+                highScoreText.setAttribute('font-size', '24');
+                highScoreText.setAttribute('font-weight', 'bold');
+                highScoreText.setAttribute('fill', 'rgba(255, 223, 0, 0.9)');
+                highScoreText.textContent = GameState.highScore.toString();
+                this.group.appendChild(highScoreText);
+                this.scoreElements.push(highScoreText);
+            },
+
+            updateScore() {
+                const scoreText = this.scoreElements[1];
+                scoreText.textContent = GameState.score.toString();
+
+                const scoreBackground = this.scoreElements[0];
+
+                const highScoreBackground = this.scoreElements[2];
+                const highScoreText = this.scoreElements[3];
+                highScoreText.textContent = GameState.highScore.toString();
                 
-                ctx.font = 'bold 24px Poppins';
-                ctx.fillText('NOU RÈCORD!', canvas.width / 2, canvas.height / 2 - 80);
-            } else {
-                ctx.fillStyle = 'white';
-                ctx.fillText(GameState.score.toString(), canvas.width / 2, canvas.height / 2);
+                if (GameState.isNewHighScore) {
+                    scoreBackground.setAttribute('fill', 'rgba(255, 215, 0, 0.2)');
+                    scoreText.setAttribute('fill', 'rgba(255, 223, 0, 0.9)');
+
+                } else {
+                    scoreBackground.setAttribute('fill', 'rgba(255, 255, 255, 0.1)');
+                    scoreText.setAttribute('fill', 'white');
+                }
+
+                const showHighScore = GameState.highScore >= 10 && !GameState.isNewHighScore;
+                highScoreBackground.setAttribute('display', showHighScore ? 'block' : 'none');
+                highScoreText.setAttribute('display', showHighScore ? 'block' : 'none');
+            },
+
+            show() {
+                if (this.group) {
+                    this.group.style.display = 'block';
+                } else {
+                    this.draw();
+                }
+            },
+
+            hide() {
+                if (this.group) {
+                    this.group.style.display = 'none';
+                }
+            },
+
+            updateVisibility() {
+                this.show();
+                this.updateScore();
+                GameState.car1.updateVisibility();
+                GameState.car2.updateVisibility();
+                GameState.obstacles.forEach(obstacle => obstacle.updateVisibility());
             }
-        }
+        };
 
-        function drawRestartButton(ctx) {
-            ctx.fillStyle = '#f0f0f0';
-            ctx.beginPath();
-            ctx.roundRect(canvas.width / 2 - 75, canvas.height / 2 + 80, 150, 40, 10);
-            ctx.fill();
-            ctx.strokeStyle = '#999';
-            ctx.lineWidth = 2;
-            ctx.stroke();
+        const StartScreen = {
+            group: null,
             
-            ctx.fillStyle = '#333';
-            ctx.font = 'bold 24px Poppins';
-            ctx.fillText(isMobile() ? 'TOCA' : 'ESPAI', canvas.width / 2, canvas.height / 2 + 108);
-            
-            ctx.fillStyle = 'white';
-            ctx.font = '20px Poppins';
-            ctx.fillText('per tornar-hi', canvas.width / 2, canvas.height / 2 + 150);
-        }
+            draw() {
+                const svg = document.getElementById('layer-ui');
+                
+                // Remove old group if it exists
+                if (this.group) {
+                    svg.removeChild(this.group);
+                }
+                
+                // Create new group
+                this.group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                this.group.setAttribute('id', 'startScreenGroup');
+                svg.appendChild(this.group);
 
-        function drawStartScreen(ctx) {
-            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            gradient.addColorStop(0, '#1a237e');
-            gradient.addColorStop(1, '#4a148c');
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+                // Background
+                const background = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                background.setAttribute('width', GameState.width);
+                background.setAttribute('height', GameState.height);
+                background.setAttribute('fill', 'url(#startScreenGradient)');
+                this.group.appendChild(background);
 
-            ctx.fillStyle = 'white';
-            ctx.font = 'bold 36px Poppins';
-            ctx.textAlign = 'center';
-            ctx.fillText('Dos cotxes', canvas.width / 2, canvas.height / 2 - 40);
-            
-            // Calculate the positions for the cars
-            const laneWidth = canvas.width / 4;
-            const carWidth = Math.min(50, laneWidth * 0.8);
-            const carHeight = carWidth * 1.6;
-            const carY = canvas.height - carHeight - GameConfig.bottomMargin;
-            
-            // Position and draw the left car (blue) centered between lanes 0 and 1
-            const leftCarX = laneWidth - carWidth / 2;
-            drawCar(ctx, leftCarX, carY, GameConfig.carColors.left, carWidth, carHeight, 0);
-            
-            // Position and draw the right car (red) centered between lanes 2 and 3
-            const rightCarX = 3 * laneWidth - carWidth / 2;
-            drawCar(ctx, rightCarX, carY, GameConfig.carColors.right, carWidth, carHeight, 0);
-            
-            // Draw the start button
-            ctx.fillStyle = '#f0f0f0';
-            ctx.beginPath();
-            ctx.roundRect(canvas.width / 2 - 75, canvas.height / 2 + 20, 150, 40, 10);
-            ctx.fill();
-            ctx.strokeStyle = '#999';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-            
-            ctx.fillStyle = '#333';
-            ctx.font = 'bold 24px Poppins';
-            ctx.fillText(isMobile() ? 'TOCA' : 'ESPAI', canvas.width / 2, canvas.height / 2 + 48);
-            
-            ctx.fillStyle = 'white';
-            ctx.font = '20px Poppins';
-            ctx.fillText('per començar', canvas.width / 2, canvas.height / 2 + 90);
-        }
+                // Title
+                const title = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                title.setAttribute('x', GameState.width / 2);
+                title.setAttribute('y', GameState.height / 2 - 40);
+                title.setAttribute('text-anchor', 'middle');
+                title.setAttribute('font-family', 'Poppins');
+                title.setAttribute('font-size', '36');
+                title.setAttribute('font-weight', 'bold');
+                title.setAttribute('fill', 'white');
+                title.textContent = 'Dos cotxes';
+                this.group.appendChild(title);
+
+                // Start button
+                const startButton = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                
+                const buttonRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                buttonRect.setAttribute('x', GameState.width / 2 - 75);
+                buttonRect.setAttribute('y', GameState.height / 2 + 20);
+                buttonRect.setAttribute('width', '150');
+                buttonRect.setAttribute('height', '40');
+                buttonRect.setAttribute('rx', '10');
+                buttonRect.setAttribute('ry', '10');
+                buttonRect.setAttribute('fill', '#f0f0f0');
+                buttonRect.setAttribute('stroke', '#999');
+                buttonRect.setAttribute('stroke-width', '2');
+                startButton.appendChild(buttonRect);
+
+                const buttonText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                buttonText.setAttribute('x', GameState.width / 2);
+                buttonText.setAttribute('y', GameState.height / 2 + 48);
+                buttonText.setAttribute('text-anchor', 'middle');
+                buttonText.setAttribute('font-family', 'Poppins');
+                buttonText.setAttribute('font-size', '24');
+                buttonText.setAttribute('font-weight', 'bold');
+                buttonText.setAttribute('fill', '#333');
+                buttonText.textContent = isMobile() ? 'TOCA' : 'ESPAI';
+                startButton.appendChild(buttonText);
+
+                this.group.appendChild(startButton);
+
+                const instructionText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                instructionText.setAttribute('x', GameState.width / 2);
+                instructionText.setAttribute('y', GameState.height / 2 + 90);
+                instructionText.setAttribute('text-anchor', 'middle');
+                instructionText.setAttribute('font-family', 'Poppins');
+                instructionText.setAttribute('font-size', '20');
+                instructionText.setAttribute('fill', 'white');
+                instructionText.textContent = 'per començar';
+                this.group.appendChild(instructionText);
+            },
+
+            show() {
+                if (this.group) {
+                    this.group.style.display = 'block';
+                } else {
+                    this.draw();
+                }
+            },
+
+            updateVisibility() {
+                if (GameState.gameStarted) {
+                    this.hide();
+                } else {
+                    this.show();
+                }
+            },
+
+            hide() {
+                if (this.group) {
+                    this.group.style.display = 'none';
+                }
+            }
+        };
 
         // Funcions principals del joc
         function resizeCanvas() {
             const container = document.getElementById('gameContainer');
             const controlsPanel = document.getElementById('controlsPanel');
+            const gameSVG = document.getElementById('gameSVG');
             
             if (isMobile()) {
-                // Use window.innerHeight for mobile to get full height
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
+                GameState.width = window.innerWidth;
+                GameState.height = window.innerHeight;
+                controlsPanel.style.display = 'none';
             } else {
-                // For desktop, use the container's dimensions
-                canvas.width = container.clientWidth;
-                canvas.height = container.clientHeight - (controlsPanel ? controlsPanel.clientHeight : 0);
+                GameState.width = container.clientWidth;
+                GameState.height = container.clientHeight - controlsPanel.clientHeight;
+                controlsPanel.style.display = 'flex';
             }
             
-            GameState.laneWidth = canvas.width / 4;
+            GameState.laneWidth = GameState.width / 4;
             
             if (GameState.car1 && GameState.car2) {
                 GameState.car1.updateDimensions();
@@ -910,13 +1165,15 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
                 GameState.initialize();
             }
             
-            if (GameState.gameStarted && !GameState.gameOver) {
-                drawGame(ctx);
-            } else if (!GameState.gameStarted) {
-                drawStartScreen(ctx);
-            }
+            gameSVG.setAttribute('width', GameState.width);
+            gameSVG.setAttribute('height', GameState.height);
+            
+            GameScreen.draw();
+            StartScreen.draw();
+            GameOverScreen.draw();
         }
 
+        // Update the gameLoop function
         function gameLoop(currentTime) {
             if (GameState.lastTime === 0) {
                 GameState.lastTime = currentTime;
@@ -929,17 +1186,16 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             // Check if transition has ended
             GameState.checkTransitionEnd(currentTime);
 
-            if (!GameState.gameStarted) {
-                drawStartScreen(ctx);
-            } else if (!GameState.gameOver) {
+            if (GameState.gameStarted && !GameState.gameOver) {
                 while (GameState.accumulator >= GameConfig.fixedDeltaTime) {
                     updateGame(GameConfig.fixedDeltaTime);
                     GameState.accumulator -= GameConfig.fixedDeltaTime;
                 }
-                drawGame(ctx);
-            } else {
-                drawGame(ctx); 
             }
+            StartScreen.updateVisibility();
+            GameOverScreen.updateVisibility();
+            GameScreen.updateVisibility();
+
             requestAnimationFrame(gameLoop);
         }
 
@@ -978,9 +1234,9 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
                 return; // Ignore touches on the fullscreen button
             }
 
-            const rect = canvas.getBoundingClientRect();
+            const rect = document.getElementById('gameSVG').getBoundingClientRect();
             const x = touch.clientX - rect.left;
-            const isRightHalf = x > canvas.width / 2;
+            const isRightHalf = x > GameState.width / 2;
 
             const currentTime = performance.now();
 
@@ -1113,10 +1369,16 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
 
         // Inicialització
         window.addEventListener('load', () => {
+            console.log("Window loaded");
             GameState.initialize();
+            createObstaclePresets();
             resizeCanvas();
             requestAnimationFrame(gameLoop);
             hideAuthorInfo();
+            
+            // Check SVG content after everything is loaded
+            const svg = document.getElementById('gameSVG');
+            console.log("SVG content after load:", svg.innerHTML);
         });
 
         window.addEventListener('resize', () => {
@@ -1147,5 +1409,262 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
         // Add this near the end of your JavaScript, just before the event listeners
         console.log('Is mobile:', isMobile());
         console.log('Fullscreen button:', document.getElementById('fullscreenButton'));
+
+        function initializeSVG() {
+            const svg = document.getElementById('gameSVG');
+            const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+
+            // Start screen gradient
+            const startScreenGradient = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+            startScreenGradient.setAttribute('id', 'startScreenGradient');
+            startScreenGradient.setAttribute('x1', '0%');
+            startScreenGradient.setAttribute('y1', '0%');
+            startScreenGradient.setAttribute('x2', '0%');
+            startScreenGradient.setAttribute('y2', '100%');
+
+            const startStop1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+            startStop1.setAttribute('offset', '0%');
+            startStop1.setAttribute('stop-color', '#1a237e');
+
+            const startStop2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+            startStop2.setAttribute('offset', '100%');
+            startStop2.setAttribute('stop-color', '#4a148c');
+
+            startScreenGradient.appendChild(startStop1);
+            startScreenGradient.appendChild(startStop2);
+            defs.appendChild(startScreenGradient);
+
+            // Gold gradient for high score
+            const goldGradient = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+            goldGradient.setAttribute('id', 'goldGradient');
+            goldGradient.setAttribute('x1', '0%');
+            goldGradient.setAttribute('y1', '0%');
+            goldGradient.setAttribute('x2', '100%');
+            goldGradient.setAttribute('y2', '100%');
+
+            const goldStop1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+            goldStop1.setAttribute('offset', '0%');
+            goldStop1.setAttribute('stop-color', 'rgba(255, 223, 0, 0.9)');
+
+            const goldStop2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+            goldStop2.setAttribute('offset', '100%');
+            goldStop2.setAttribute('stop-color', 'rgba(255, 223, 0, 0.7)');
+
+            goldGradient.appendChild(goldStop1);
+            goldGradient.appendChild(goldStop2);
+            defs.appendChild(goldGradient);
+
+            // Add game background gradient
+            const gameBackgroundGradient = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+            gameBackgroundGradient.setAttribute('id', 'gameBackgroundGradient');
+            gameBackgroundGradient.setAttribute('x1', '0%');
+            gameBackgroundGradient.setAttribute('y1', '0%');
+            gameBackgroundGradient.setAttribute('x2', '0%');
+            gameBackgroundGradient.setAttribute('y2', '100%');
+
+            const gameBackgroundStop1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+            gameBackgroundStop1.setAttribute('offset', '0%');
+            gameBackgroundStop1.setAttribute('stop-color', '#1A237E');
+
+            const gameBackgroundStop2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+            gameBackgroundStop2.setAttribute('offset', '100%');
+            gameBackgroundStop2.setAttribute('stop-color', '#311B92');
+
+            gameBackgroundGradient.appendChild(gameBackgroundStop1);
+            gameBackgroundGradient.appendChild(gameBackgroundStop2);
+            defs.appendChild(gameBackgroundGradient);
+
+            svg.appendChild(defs);
+
+            // Create layers
+            const layers = ['background', 'ui','obstacles', 'cars', 'gameOver'];
+            layers.forEach((layer, index) => {
+                const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                g.setAttribute('id', `layer-${layer}`);
+                g.style.zIndex = index.toString();
+                svg.appendChild(g);
+            });
+        }
+
+        initializeSVG();
+
+        // Add this function to create obstacle presets
+        function createObstaclePresets() {
+            const svg = document.getElementById('gameSVG');
+            
+            // Ensure SVG is visible
+            svg.style.display = 'block';
+            svg.style.zIndex = '1000';
+
+            const createDefs = (targetSVG) => {
+                const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+                targetSVG.appendChild(defs);
+
+                const presetSize = 40;
+                const presets = [
+                    { id: 'leftCircle', isCircle: true, color: GameConfig.obstacleColors.leftCircle },
+                    { id: 'leftSquare', isCircle: false, color: GameConfig.obstacleColors.leftSquare },
+                    { id: 'rightCircle', isCircle: true, color: GameConfig.obstacleColors.rightCircle },
+                    { id: 'rightSquare', isCircle: false, color: GameConfig.obstacleColors.rightSquare },
+                    { id: 'leftCar', isCar: true, color: GameConfig.carColors.left },
+                    { id: 'rightCar', isCar: true, color: GameConfig.carColors.right }
+                ];
+
+                presets.forEach((preset) => {
+                    const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                    group.setAttribute('id', preset.id);
+
+                    if (preset.isCar) {
+                        const carWidth = presetSize;
+                        const carHeight = carWidth * 1.6;
+
+                        // Main body
+                        const body = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                        body.setAttribute('width', carWidth);
+                        body.setAttribute('height', carHeight);
+                        body.setAttribute('rx', 15);
+                        body.setAttribute('ry', 15);
+                        body.setAttribute('fill', preset.color);
+                        group.appendChild(body);
+
+                        // Roof
+                        const roof = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                        roof.setAttribute('x', 5);
+                        roof.setAttribute('y', 15);
+                        roof.setAttribute('width', carWidth - 10);
+                        roof.setAttribute('height', carHeight - 35);
+                        roof.setAttribute('rx', 10);
+                        roof.setAttribute('ry', 10);
+                        roof.setAttribute('fill', shadeColor(preset.color, -20));
+                        group.appendChild(roof);
+
+                        // Window
+                        const window = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                        window.setAttribute('x', 8);
+                        window.setAttribute('y', 20);
+                        window.setAttribute('width', carWidth - 16);
+                        window.setAttribute('height', carHeight - 45);
+                        window.setAttribute('rx', 5);
+                        window.setAttribute('ry', 5);
+                        window.setAttribute('fill', 'url(#windowGradient)');
+                        group.appendChild(window);
+
+                        // Headlights
+                        const headlight1 = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+                        headlight1.setAttribute('cx', 10);
+                        headlight1.setAttribute('cy', 5);
+                        headlight1.setAttribute('rx', 5);
+                        headlight1.setAttribute('ry', 3);
+                        headlight1.setAttribute('fill', '#FFEB3B');
+                        group.appendChild(headlight1);
+
+                        const headlight2 = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+                        headlight2.setAttribute('cx', carWidth - 10);
+                        headlight2.setAttribute('cy', 5);
+                        headlight2.setAttribute('rx', 5);
+                        headlight2.setAttribute('ry', 3);
+                        headlight2.setAttribute('fill', '#FFEB3B');
+                        group.appendChild(headlight2);
+
+                        // Taillights
+                        const taillight1 = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+                        taillight1.setAttribute('cx', 10);
+                        taillight1.setAttribute('cy', carHeight - 5);
+                        taillight1.setAttribute('rx', 5);
+                        taillight1.setAttribute('ry', 3);
+                        taillight1.setAttribute('fill', '#FFA000');
+                        group.appendChild(taillight1);
+
+                        const taillight2 = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+                        taillight2.setAttribute('cx', carWidth - 10);
+                        taillight2.setAttribute('cy', carHeight - 5);
+                        taillight2.setAttribute('rx', 5);
+                        taillight2.setAttribute('ry', 3);
+                        taillight2.setAttribute('fill', '#FFA000');
+                        group.appendChild(taillight2);
+
+                    } else if (preset.isCircle) {
+                        const outerCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                        outerCircle.setAttribute('cx', presetSize / 2);
+                        outerCircle.setAttribute('cy', presetSize / 2);
+                        outerCircle.setAttribute('r', presetSize / 2);
+                        outerCircle.setAttribute('fill', preset.color);
+                        group.appendChild(outerCircle);
+
+                        const whiteRing = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                        whiteRing.setAttribute('cx', presetSize / 2);
+                        whiteRing.setAttribute('cy', presetSize / 2);
+                        whiteRing.setAttribute('r', presetSize * 0.4);
+                        whiteRing.setAttribute('fill', 'rgba(255, 255, 255, 0.8)');
+                        group.appendChild(whiteRing);
+
+                        const innerCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                        innerCircle.setAttribute('cx', presetSize / 2);
+                        innerCircle.setAttribute('cy', presetSize / 2);
+                        innerCircle.setAttribute('r', presetSize * 0.3);
+                        innerCircle.setAttribute('fill', preset.color);
+                        group.appendChild(innerCircle);
+
+                        const centralDot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                        centralDot.setAttribute('cx', presetSize / 2);
+                        centralDot.setAttribute('cy', presetSize / 2);
+                        centralDot.setAttribute('r', presetSize * 0.1);
+                        centralDot.setAttribute('fill', 'white');
+                        group.appendChild(centralDot);
+                    } else {
+                        const square = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                        square.setAttribute('width', presetSize);
+                        square.setAttribute('height', presetSize);
+                        square.setAttribute('rx', presetSize / 5);
+                        square.setAttribute('ry', presetSize / 5);
+                        square.setAttribute('fill', preset.color);
+                        group.appendChild(square);
+
+                        const warningSymbol = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                        warningSymbol.setAttribute('d', `M${presetSize / 4},${presetSize / 4} L${3 * presetSize / 4},${3 * presetSize / 4} M${3 * presetSize / 4},${presetSize / 4} L${presetSize / 4},${3 * presetSize / 4}`);
+                        warningSymbol.setAttribute('stroke', 'rgba(255, 255, 255, 0.9)');
+                        warningSymbol.setAttribute('stroke-width', 4);
+                        group.appendChild(warningSymbol);
+                    }
+
+                    defs.appendChild(group);
+                });
+
+                const windowGradient = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+                windowGradient.setAttribute('id', 'windowGradient');
+                windowGradient.setAttribute('x1', '0%');
+                windowGradient.setAttribute('y1', '0%');
+                windowGradient.setAttribute('x2', '0%');
+                windowGradient.setAttribute('y2', '100%');
+
+                const stop1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+                stop1.setAttribute('offset', '0%');
+                stop1.setAttribute('stop-color', 'rgba(255, 255, 255, 0.9)');
+
+                const stop2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+                stop2.setAttribute('offset', '100%');
+                stop2.setAttribute('stop-color', 'rgba(255, 255, 255, 0.3)');
+
+                windowGradient.appendChild(stop1);
+                windowGradient.appendChild(stop2);
+                defs.appendChild(windowGradient);
+            };
+
+            createDefs(svg);
+        }
+
+        // Make sure to call this function on load
+        window.addEventListener('load', () => {
+            console.log("Window loaded");
+            GameState.initialize();
+            createObstaclePresets();
+            resizeCanvas();
+            requestAnimationFrame(gameLoop);
+            hideAuthorInfo();
+            
+            // Check SVG content after everything is loaded
+            const svg = document.getElementById('gameSVG');
+            console.log("SVG content after load:", svg.innerHTML);
+        });
     </script>
 </body>
