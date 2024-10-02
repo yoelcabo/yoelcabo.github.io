@@ -290,8 +290,6 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
                 this.speed = GameConfig.startSpeed;
                 this.lastObstacleTime = performance.now();
                 this.distanceSinceLastObstacle = GameConfig.baseObstacleDistance;
-                // Remove the line that creates the first obstacle immediately
-                // this.createObstacle(); // This line should be removed
             },
 
             updateSpeed(deltaTime) {
@@ -1161,8 +1159,6 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
                 GameState.car1.updateDimensions();
                 GameState.car2.updateDimensions();
                 GameState.obstacles.forEach(obstacle => obstacle.updateDimensions());
-            } else {
-                GameState.initialize();
             }
             
             gameSVG.setAttribute('width', GameState.width);
@@ -1339,7 +1335,6 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
                 } else if (document.documentElement.msRequestFullscreen) {
                     document.documentElement.msRequestFullscreen();
                 }
-                document.getElementById('fullscreenButton').querySelector('.material-icons').textContent = 'fullscreen_exit';
             } else {
                 if (document.exitFullscreen) {
                     document.exitFullscreen();
@@ -1350,27 +1345,36 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
                 } else if (document.msExitFullscreen) {
                     document.msExitFullscreen();
                 }
-                document.getElementById('fullscreenButton').querySelector('.material-icons').textContent = 'fullscreen';
+            }
+        }
+
+        function updateFullscreenButtonIcon() {
+            const fullscreenButton = document.getElementById('fullscreenButton');
+            if (fullscreenButton) {
+                const icon = fullscreenButton.querySelector('.material-icons');
+                if (icon) {
+                    icon.textContent = document.fullscreenElement ? 'fullscreen_exit' : 'fullscreen';
+                }
             }
         }
 
         function updateFullscreenButtonVisibility() {
             const fullscreenButton = document.getElementById('fullscreenButton');
-            if (isMobile()) {
-                fullscreenButton.style.display = 'flex';
-            } else {
-                fullscreenButton.style.display = 'none';
+            if (fullscreenButton) {
+                fullscreenButton.style.display = isMobile() ? 'flex' : 'none';
             }
         }
 
         // Call this function on load and resize
-        window.addEventListener('load', updateFullscreenButtonVisibility);
+        window.addEventListener('load', () => {
+            updateFullscreenButtonVisibility();
+            updateFullscreenButtonIcon();
+        });
         window.addEventListener('resize', updateFullscreenButtonVisibility);
 
         // Inicialització
         window.addEventListener('load', () => {
             console.log("Window loaded");
-            GameState.initialize();
             createObstaclePresets();
             resizeCanvas();
             requestAnimationFrame(gameLoop);
@@ -1396,15 +1400,12 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
         });
         document.getElementById('gameContainer').addEventListener('touchstart', handleStart, { passive: false });
         document.addEventListener('keydown', handleKeyDown);
-        document.getElementById('fullscreenButton').addEventListener('touchend', function(event) {
+        document.getElementById('fullscreenButton').addEventListener('click', function(event) {
             event.preventDefault();
             event.stopPropagation();
             toggleFullScreen();
-        }, { passive: false });
-        document.addEventListener('fullscreenchange', function() {
-            const icon = document.getElementById('fullscreenButton').querySelector('.material-icons');
-            icon.textContent = document.fullscreenElement ? 'fullscreen_exit' : 'fullscreen';
         });
+        document.addEventListener('fullscreenchange', updateFullscreenButtonIcon);
 
         // Add this near the end of your JavaScript, just before the event listeners
         console.log('Is mobile:', isMobile());
