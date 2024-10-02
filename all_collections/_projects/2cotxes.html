@@ -10,7 +10,6 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dos cotxes</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         body {
             display: flex;
@@ -135,7 +134,7 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             left: 0;
             width: 100%;
             height: 100%;
-            pointer-events: none; /* This allows clicks to pass through to elements below */
+            pointer-events: none;
         }
     </style>
 </head>
@@ -1169,7 +1168,6 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             GameOverScreen.draw();
         }
 
-        // Update the gameLoop function
         function gameLoop(currentTime) {
             if (GameState.lastTime === 0) {
                 GameState.lastTime = currentTime;
@@ -1179,7 +1177,6 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             
             GameState.accumulator += deltaTime;
 
-            // Check if transition has ended
             GameState.checkTransitionEnd(currentTime);
 
             if (GameState.gameStarted && !GameState.gameOver) {
@@ -1324,66 +1321,13 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             }
         }
 
-        function toggleFullScreen() {
-            if (!document.fullscreenElement) {
-                if (document.documentElement.requestFullscreen) {
-                    document.documentElement.requestFullscreen();
-                } else if (document.documentElement.mozRequestFullScreen) {
-                    document.documentElement.mozRequestFullScreen();
-                } else if (document.documentElement.webkitRequestFullscreen) {
-                    document.documentElement.webkitRequestFullscreen();
-                } else if (document.documentElement.msRequestFullscreen) {
-                    document.documentElement.msRequestFullscreen();
-                }
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                } else if (document.mozCancelFullScreen) {
-                    document.mozCancelFullScreen();
-                } else if (document.webkitExitFullscreen) {
-                    document.webkitExitFullscreen();
-                } else if (document.msExitFullscreen) {
-                    document.msExitFullscreen();
-                }
-            }
-        }
-
-        function updateFullscreenButtonIcon() {
-            const fullscreenButton = document.getElementById('fullscreenButton');
-            if (fullscreenButton) {
-                const icon = fullscreenButton.querySelector('.material-icons');
-                if (icon) {
-                    icon.textContent = document.fullscreenElement ? 'fullscreen_exit' : 'fullscreen';
-                }
-            }
-        }
-
+        // Modify the updateFullscreenButtonVisibility function to always hide the button
         function updateFullscreenButtonVisibility() {
             const fullscreenButton = document.getElementById('fullscreenButton');
             if (fullscreenButton) {
-                fullscreenButton.style.display = isMobile() ? 'flex' : 'none';
+                fullscreenButton.style.display = 'none';
             }
         }
-
-        // Call this function on load and resize
-        window.addEventListener('load', () => {
-            updateFullscreenButtonVisibility();
-            updateFullscreenButtonIcon();
-        });
-        window.addEventListener('resize', updateFullscreenButtonVisibility);
-
-        // Inicialització
-        window.addEventListener('load', () => {
-            console.log("Window loaded");
-            createObstaclePresets();
-            resizeCanvas();
-            requestAnimationFrame(gameLoop);
-            hideAuthorInfo();
-            
-            // Check SVG content after everything is loaded
-            const svg = document.getElementById('gameSVG');
-            console.log("SVG content after load:", svg.innerHTML);
-        });
 
         window.addEventListener('resize', () => {
             resizeCanvas();
@@ -1400,12 +1344,6 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
         });
         document.getElementById('gameContainer').addEventListener('touchstart', handleStart, { passive: false });
         document.addEventListener('keydown', handleKeyDown);
-        document.getElementById('fullscreenButton').addEventListener('click', function(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            toggleFullScreen();
-        });
-        document.addEventListener('fullscreenchange', updateFullscreenButtonIcon);
 
         // Add this near the end of your JavaScript, just before the event listeners
         console.log('Is mobile:', isMobile());
@@ -1654,18 +1592,12 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             createDefs(svg);
         }
 
-        // Make sure to call this function on load
         window.addEventListener('load', () => {
-            console.log("Window loaded");
-            GameState.initialize();
             createObstaclePresets();
             resizeCanvas();
-            requestAnimationFrame(gameLoop);
+            GameState.initialize();
             hideAuthorInfo();
-            
-            // Check SVG content after everything is loaded
-            const svg = document.getElementById('gameSVG');
-            console.log("SVG content after load:", svg.innerHTML);
+            requestAnimationFrame(gameLoop);
         });
     </script>
 </body>
