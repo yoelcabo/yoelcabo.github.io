@@ -1,7 +1,7 @@
 ---
 layout: empty
 title: "Dos Cotxes"
-years: "2023"
+years: "2024"
 description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines de IA"
 ---
 
@@ -136,6 +136,36 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             height: 100%;
             pointer-events: none;
         }
+        #gameContainer {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        #controlsPanel {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+        }
+        .carControls {
+            display: flex;
+            gap: 10px;
+        }
+        .controlKey {
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 18px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        .controlKey:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0,0,0,0.2);
+        }
     </style>
 </head>
 <body>
@@ -155,8 +185,9 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
         </button>
     </div>
     <script>
-        // Configuració del joc
         const GameConfig = {
+            numCars: 3,
+            carColors: ['#00BCD4', '#FF4081', '#FFEB3B'],
             startSpeed: 300,
             maxSpeed: 1000,
             acceleration: 10,
@@ -165,28 +196,27 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             minObstaclesPerPair: 1,
             baseObstacleDistance: 300,
             fixedDeltaTime: 1000 / 60,
-            bottomMargin: 20,
-            carColors: {
-                left: '#00BCD4',
-                right: '#FF4081'
-            },
-            obstacleColors: {
-                leftCircle: '#00BCD4',  // Mateix color que el cotxe esquerre
-                leftSquare: '#0097A7',  // Color més fosc pel quadrat esquerre
-                rightCircle: '#FF4081', // Mateix color que el cotxe dret
-                rightSquare: '#C2185B'  // Color més fosc pel quadrat dret
-            },
+            bottomMargin: 0, // We'll calculate this dynamically now
+            obstacleColors: [
+                { circle: '#00BCD4', square: '#0097A7' },  // Blue
+                { circle: '#FF4081', square: '#C2185B' },  // Pink
+                { circle: '#FFEB3B', square: '#FBC02D' }   // Yellow
+            ],
             transitionDurations: {
-                gameStart: 1000,  // Increased from 1000 to 2000 milliseconds
-                gameRestart: 400,  // Increased from 400 to 1500 milliseconds
+                gameStart: 1000,
+                gameRestart: 400,
                 carMove: 250,
             }
         };
 
+        // Set controls based on number of cars
+        GameConfig.controls = GameConfig.numCars === 2 
+            ? ['A', 'D', 'ArrowLeft', 'ArrowRight']
+            : ['D', 'F', 'J', 'K'];
+
         // Estat del joc
         const GameState = {
-            car1: null,
-            car2: null,
+            cars: [],
             obstacles: [],
             score: 0,
             highScore: 0,
@@ -210,21 +240,19 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             gameOverCar: null,
 
             initialize() {
-                this.laneWidth = GameState.width / 4;
+                this.laneWidth = GameState.width / (GameConfig.numCars * 2);
                 const carWidth = Math.min(50, this.laneWidth * 0.8);
                 const carHeight = carWidth * 1.6;
                 const initialY = GameState.height - GameConfig.bottomMargin - carHeight;
                 
-                // Initialize cars at the center of their respective sides
-                const leftCenterX = this.laneWidth;
-                const rightCenterX = 3 * this.laneWidth;
-                
-                this.car1 = new Car(0, GameConfig.carColors.left, leftCenterX - carWidth / 2);
-                this.car2 = new Car(3, GameConfig.carColors.right, rightCenterX - carWidth / 2);
-                
-                // Set target positions
-                this.car1.targetX = this.laneWidth / 2 - carWidth / 2;
-                this.car2.targetX = 3 * this.laneWidth + this.laneWidth / 2 - carWidth / 2;
+                // Initialize cars
+                for (let i = 0; i < GameConfig.numCars; i++) {
+                    const initialX = (i * 2 + 1) * this.laneWidth - carWidth / 2;
+                    const lane = i * 2 + (i === GameConfig.numCars - 1 ? 1 : 0);
+                    this.cars[i] = new Car(lane, GameConfig.carColors[i], initialX);
+                    
+                    this.cars[i].targetX = (lane + 0.5) * this.laneWidth - carWidth / 2;
+                }
                 
                 this.obstacles = [];
                 this.score = 0;
@@ -240,27 +268,24 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             },
 
             reset() {
-                if (!this.car1 || !this.car2) {
+                if (!this.cars[0] || !this.cars[1]) {
                     this.initialize();
                     this.gameStartTransition = true;
                     this.gameStartTransitionStart = performance.now();
                 } else {
                     // Keep the current positions for restart
-                    const car1CurrentX = this.car1.x;
-                    const car2CurrentX = this.car2.x;
+                    const carCurrentPositions = this.cars.map(car => car.x);
                     
-                    this.car1.remove();
-                    this.car2.remove();
+                    this.cars.forEach(car => car.remove());
                     this.obstacles.forEach(obstacle => obstacle.remove());
 
                     this.initialize();
                     
                     // Set the current positions as start positions
-                    this.car1.x = car1CurrentX;
-                    this.car1.startX = car1CurrentX;
-                    this.car2.x = car2CurrentX;
-                    this.car2.startX = car2CurrentX;
-                    
+                    this.cars.forEach((car, index) => {
+                        car.x = carCurrentPositions[index];
+                        car.startX = carCurrentPositions[index];
+                    });
                     this.gameRestartTransition = true;
                     this.gameRestartTransitionStart = performance.now();
                 }
@@ -275,8 +300,7 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
                     const progress = Math.min(elapsedTime / GameConfig.transitionDurations.gameStart, 1);
                     
                     // Update car positions during transition
-                    this.car1.move(progress);
-                    this.car2.move(progress);
+                    this.cars.forEach(car => car.move(progress));
                     
                     if (progress >= 1) {
                         this.gameStartTransition = false;
@@ -313,7 +337,12 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
                     return false;
                 };
 
-                return createForSide(0) || createForSide(2);
+                // Try to create obstacles for all lanes
+                for (let i = 0; i < GameConfig.numCars * 2; i += 2) {
+                    if (createForSide(i)) return true;
+                }
+
+                return false;
             },
 
             createObstacleForPair(lane1, lane2) {
@@ -328,11 +357,11 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
                 if (availableLanes.length === 0) return false;
 
                 const lane = availableLanes[Math.floor(Math.random() * availableLanes.length)];
-                const isLeftPair = lane < 2;
+                const colorSetIndex = Math.floor(lane / 2) % GameConfig.obstacleColors.length;
                 const isCircle = Math.random() < 0.5;
-                const obstacleColor = isLeftPair
-                    ? (isCircle ? GameConfig.obstacleColors.leftCircle : GameConfig.obstacleColors.leftSquare)
-                    : (isCircle ? GameConfig.obstacleColors.rightCircle : GameConfig.obstacleColors.rightSquare);
+                const obstacleColor = isCircle
+                    ? GameConfig.obstacleColors[colorSetIndex].circle
+                    : GameConfig.obstacleColors[colorSetIndex].square;
 
                 const newObstacle = new Obstacle(
                     lane,
@@ -360,7 +389,7 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
                     if (obstacle.isCircle && obstacle.y + obstacle.size > this.height) {
                         this.gameOver = true;
                         this.gameOverObstacle = obstacle;
-                        this.gameOverCar = (obstacle.lane < 2) ? this.car1 : this.car2;
+                        this.gameOverCar = (obstacle.lane < 2) ? this.cars[0] : this.cars[1];
                         this.gameOverObstacle.highlight();
                         this.gameOverCar.highlight();
                     }
@@ -389,7 +418,8 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
 
             checkCollisions() {
                 this.obstacles.forEach(obstacle => {
-                    const car = (obstacle.lane < 2) ? this.car1 : this.car2;
+                    const carIndex = Math.floor(obstacle.lane / 2);
+                    const car = this.cars[carIndex];
                     
                     // Check if the first half of the car overlaps with the obstacle
                     if (car.y < obstacle.y + obstacle.size && car.y + car.height / 2 > obstacle.y) {
@@ -413,8 +443,8 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
                                 this.gameOver = true;
                                 this.gameOverObstacle = obstacle;
                                 this.gameOverCar = car;
-                                this.gameOverObstacle.highlight()
-                                this.gameOverCar.highlight()
+                                this.gameOverObstacle.highlight();
+                                this.gameOverCar.highlight();
                             }
                         }
                     }
@@ -437,21 +467,19 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
                     return progress === 1;
                 };
 
-                if (this.gameStartTransition) {
-                    const car1Done = updateCarPosition(this.car1, this.gameStartTransitionStart, GameConfig.transitionDurations.gameStart);
-                    const car2Done = updateCarPosition(this.car2, this.gameStartTransitionStart, GameConfig.transitionDurations.gameStart);
-                    if (car1Done && car2Done) {
-                        this.gameStartTransition = false;
-                        this.car1.x = this.car1.targetX;
-                        this.car2.x = this.car2.targetX;
-                    }
-                } else if (this.gameRestartTransition) {
-                    const car1Done = updateCarPosition(this.car1, this.gameRestartTransitionStart, GameConfig.transitionDurations.gameRestart);
-                    const car2Done = updateCarPosition(this.car2, this.gameRestartTransitionStart, GameConfig.transitionDurations.gameRestart);
-                    if (car1Done && car2Done) {
-                        this.gameRestartTransition = false;
-                        this.car1.x = this.car1.targetX;
-                        this.car2.x = this.car2.targetX;
+                if (this.gameStartTransition || this.gameRestartTransition) {
+                    const transitionType = this.gameStartTransition ? 'gameStart' : 'gameRestart';
+                    const transitionStart = this[`${transitionType}TransitionStart`];
+                    const transitionDuration = GameConfig.transitionDurations[transitionType];
+
+                    const carDoneStates = this.cars.map(car => 
+                        updateCarPosition(car, transitionStart, transitionDuration)
+                    );
+                    const allCarsDone = carDoneStates.every(done => done);
+
+                    if (allCarsDone) {
+                        this[`${transitionType}Transition`] = false;
+                        this.cars.forEach(car => car.x = car.targetX);
                     }
                 } else {
                     // Calculate carMove duration based on current speed
@@ -464,23 +492,32 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
 
                     const carMoveDuration = calculateCarMoveDuration();
 
-                    if (this.car1TransitionStart > 0 && updateCarPosition(this.car1, this.car1TransitionStart, carMoveDuration)) {
-                        this.car1TransitionStart = 0;
-                    }
-                    
-                    if (this.car2TransitionStart > 0 && updateCarPosition(this.car2, this.car2TransitionStart, carMoveDuration)) {
-                        this.car2TransitionStart = 0;
-                    }
+                    this.cars.forEach((car, index) => {
+                        if (car.transitionStart > 0) {
+                            const progress = Math.min((currentTime - car.transitionStart) / carMoveDuration, 1);
+                            car.move(progress);
+                            
+                            // Start straightening when the car is 80% through its movement
+                            if (progress >= 0.8) {
+                                car.targetTilt = 0;
+                            }
+                            
+                            car.updateTilt(deltaTime);
+
+                            if (progress === 1) {
+                                car.transitionStart = 0;
+                            }
+                        }
+                    });
                 }
             },
 
             moveCar(car, newLane) {
-                // Restrict car1 (left car) to lanes 0 and 1
-                if (car === this.car1 && (newLane < 0 || newLane > 1)) {
-                    return false;
-                }
-                // Restrict car2 (right car) to lanes 2 and 3
-                if (car === this.car2 && (newLane < 2 || newLane > 3)) {
+                const carIndex = this.cars.indexOf(car);
+                const minLane = carIndex * 2;
+                const maxLane = minLane + 1;
+                
+                if (newLane < minLane || newLane > maxLane) {
                     return false;
                 }
 
@@ -520,7 +557,8 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
 
             createSVGElement() {
                 const element = document.createElementNS('http://www.w3.org/2000/svg', 'use');
-                element.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', `#${this.color === GameConfig.carColors.left ? 'leftCar' : 'rightCar'}`);
+                const carIndex = GameConfig.carColors.indexOf(this.color);
+                element.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', `#car${carIndex}`);
                 document.getElementById('layer-cars').appendChild(element);
                 return element;
             }
@@ -536,7 +574,8 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             updateDimensions() {
                 this.width = Math.min(50, GameState.laneWidth * 0.8);
                 this.height = this.width * 1.6;
-                this.y = GameState.height - this.height - GameConfig.bottomMargin;
+                // Adjust the vertical position of the car
+                this.y = GameState.height - this.height - GameConfig.bottomMargin - (GameState.height * 0.1); // Lift the car by 10% of the game height
                 this.updatePosition();
             }
 
@@ -620,18 +659,16 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             }
 
             getPresetId() {
-                const isLeft = this.lane < 2;
-                if (this.isCircle) {
-                    return isLeft ? 'leftCircle' : 'rightCircle';
-                } else {
-                    return isLeft ? 'leftSquare' : 'rightSquare';
-                }
+                const colorIndex = Math.floor(this.lane / 2);
+                const shapeType = this.isCircle ? 'circle' : 'square';
+                return `${shapeType}${colorIndex}`;
             }
 
             updateDimensions() {
                 this.size = Math.min(40, GameState.laneWidth * 0.6);
                 this.x = (this.lane + 0.5) * GameState.laneWidth - this.size / 2;
-                this.y = -this.size;
+                // Start obstacles higher in the game area
+                this.y = -this.size - (GameState.height * 0.1); // Start 10% of game height higher
             }
 
             updateVisibility() {
@@ -922,7 +959,7 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
 
             drawLanes() {
                 this.laneLines = [];
-                for (let i = 1; i < 4; i++) {
+                for (let i = 1; i < GameConfig.numCars * 2; i++) {
                     const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
                     line.setAttribute('x1', i * GameState.laneWidth);
                     line.setAttribute('y1', 0);
@@ -931,7 +968,7 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
                     line.setAttribute('stroke', 'rgba(255, 255, 255, 0.2)');
                     line.setAttribute('stroke-width', '2');
 
-                    if (i === 2) {
+                    if (i % 2 === 0) {
                         // Central double solid line
                         line.setAttribute('stroke-width', '4');
                     } else {
@@ -1037,8 +1074,7 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             updateVisibility() {
                 this.show();
                 this.updateScore();
-                GameState.car1.updateVisibility();
-                GameState.car2.updateVisibility();
+                GameState.cars.forEach(car => car.updateVisibility());
                 GameState.obstacles.forEach(obstacle => obstacle.updateVisibility());
             }
         };
@@ -1146,27 +1182,35 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             const controlsPanel = document.getElementById('controlsPanel');
             const gameSVG = document.getElementById('gameSVG');
             
+            const fixedHeight = 900;
+
             if (isMobile()) {
                 GameState.width = window.innerWidth;
                 GameState.height = window.innerHeight;
                 controlsPanel.style.display = 'none';
             } else {
-                GameState.width = container.clientWidth;
-                GameState.height = container.clientHeight - controlsPanel.clientHeight;
+                // Adjust width based on number of cars, but keep height fixed
+                const baseWidth = GameConfig.numCars === 2 ? 400 : 600;
+                GameState.width = Math.min(baseWidth, window.innerWidth * 0.8);
+                GameState.height = fixedHeight;
+                container.style.width = `${GameState.width}px`;
+                container.style.height = `${GameState.height + controlsPanel.clientHeight}px`;
                 controlsPanel.style.display = 'flex';
             }
             
-            GameState.laneWidth = GameState.width / 4;
+            GameState.laneWidth = GameState.width / (GameConfig.numCars * 2);
             
-            if (GameState.car1 && GameState.car2) {
-                GameState.car1.updateDimensions();
-                GameState.car2.updateDimensions();
+            if (GameState.cars.length > 0) {
+                GameState.cars.forEach(car => car.updateDimensions());
                 GameState.obstacles.forEach(obstacle => obstacle.updateDimensions());
             }
             
             gameSVG.setAttribute('width', GameState.width);
             gameSVG.setAttribute('height', GameState.height);
             
+            // Recalculate bottom margin based on fixed height
+            GameConfig.bottomMargin = GameState.height * 0.05; // 5% of game height
+
             GameScreen.draw();
             StartScreen.draw();
             GameOverScreen.draw();
@@ -1240,21 +1284,30 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
 
             const rect = document.getElementById('gameSVG').getBoundingClientRect();
             const x = touch.clientX - rect.left;
-            const isRightHalf = x > GameState.width / 2;
-
             const currentTime = performance.now();
 
-            if (isRightHalf) {
-                // Right car
-                const newLane = GameState.car2.lane === 2 ? 3 : 2;
-                if (GameState.moveCar(GameState.car2, newLane)) {
-                    GameState.car2TransitionStart = currentTime;
+            if (GameConfig.numCars === 2) {
+                // Existing touch handling for two cars
+                const isRightHalf = x > GameState.width / 2;
+                if (isRightHalf) {
+                    const newLane = GameState.cars[1].lane === 2 ? 3 : 2;
+                    if (GameState.moveCar(GameState.cars[1], newLane)) {
+                        GameState.cars[1].transitionStart = currentTime;
+                    }
+                } else {
+                    const newLane = GameState.cars[0].lane === 0 ? 1 : 0;
+                    if (GameState.moveCar(GameState.cars[0], newLane)) {
+                        GameState.cars[0].transitionStart = currentTime;
+                    }
                 }
             } else {
-                // Left car
-                const newLane = GameState.car1.lane === 0 ? 1 : 0;
-                if (GameState.moveCar(GameState.car1, newLane)) {
-                    GameState.car1TransitionStart = currentTime;
+                const carIndex = Math.floor(x / (GameState.width / GameConfig.numCars));
+                if (carIndex < GameState.cars.length) {
+                    const car = GameState.cars[carIndex];
+                    const newLane = (car.lane === carIndex * 2) ? carIndex * 2 + 1 : carIndex * 2;
+                    if (GameState.moveCar(car, newLane)) {
+                        car.transitionStart = currentTime;
+                    }
                 }
             }
         }
@@ -1270,30 +1323,42 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             if (!GameState.gameStarted || GameState.gameOver || GameState.gameStartTransition) return;
 
             const currentTime = performance.now();
+            const key = event.key.toUpperCase();
 
-            switch(event.key) {
-                case 'a':
-                case 'A':
-                    if (GameState.moveCar(GameState.car1, GameState.car1.lane - 1)) {
-                        GameState.car1TransitionStart = currentTime;
+            if (GameConfig.numCars === 2) {
+                // Original control scheme for 2 cars
+                switch(key) {
+                    case 'A':
+                        if (GameState.moveCar(GameState.cars[0], GameState.cars[0].lane - 1)) {
+                            GameState.cars[0].transitionStart = currentTime;
+                        }
+                        break;
+                    case 'D':
+                        if (GameState.moveCar(GameState.cars[0], GameState.cars[0].lane + 1)) {
+                            GameState.cars[0].transitionStart = currentTime;
+                        }
+                        break;
+                    case 'ARROWLEFT':
+                        if (GameState.moveCar(GameState.cars[1], GameState.cars[1].lane - 1)) {
+                            GameState.cars[1].transitionStart = currentTime;
+                        }
+                        break;
+                    case 'ARROWRIGHT':
+                        if (GameState.moveCar(GameState.cars[1], GameState.cars[1].lane + 1)) {
+                            GameState.cars[1].transitionStart = currentTime;
+                        }
+                        break;
+                }
+            } else {
+                // New control scheme for 3 or more cars
+                const carIndex = GameConfig.controls.indexOf(key);
+                if (carIndex !== -1 && carIndex < GameState.cars.length) {
+                    const car = GameState.cars[carIndex];
+                    const newLane = (car.lane === carIndex * 2) ? carIndex * 2 + 1 : carIndex * 2;
+                    if (GameState.moveCar(car, newLane)) {
+                        car.transitionStart = currentTime;
                     }
-                    break;
-                case 'd':
-                case 'D':
-                    if (GameState.moveCar(GameState.car1, GameState.car1.lane + 1)) {
-                        GameState.car1TransitionStart = currentTime;
-                    }
-                    break;
-                case 'ArrowLeft':
-                    if (GameState.moveCar(GameState.car2, GameState.car2.lane - 1)) {
-                        GameState.car2TransitionStart = currentTime;
-                    }
-                    break;
-                case 'ArrowRight':
-                    if (GameState.moveCar(GameState.car2, GameState.car2.lane + 1)) {
-                        GameState.car2TransitionStart = currentTime;
-                    }
-                    break;
+                }
             }
         }
 
@@ -1444,12 +1509,11 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
 
                 const presetSize = 40;
                 const presets = [
-                    { id: 'leftCircle', isCircle: true, color: GameConfig.obstacleColors.leftCircle },
-                    { id: 'leftSquare', isCircle: false, color: GameConfig.obstacleColors.leftSquare },
-                    { id: 'rightCircle', isCircle: true, color: GameConfig.obstacleColors.rightCircle },
-                    { id: 'rightSquare', isCircle: false, color: GameConfig.obstacleColors.rightSquare },
-                    { id: 'leftCar', isCar: true, color: GameConfig.carColors.left },
-                    { id: 'rightCar', isCar: true, color: GameConfig.carColors.right }
+                    ...GameConfig.obstacleColors.flatMap((colorSet, index) => [
+                        { id: `circle${index}`, isCircle: true, color: colorSet.circle },
+                        { id: `square${index}`, isCircle: false, color: colorSet.square }
+                    ]),
+                    ...GameConfig.carColors.map((color, index) => ({ id: `car${index}`, isCar: true, color: color }))
                 ];
 
                 presets.forEach((preset) => {
@@ -1599,8 +1663,75 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             createObstaclePresets();
             resizeCanvas();
             GameState.initialize();
+            generateControlPanel();  // Add this line
             hideAuthorInfo();
             requestAnimationFrame(gameLoop);
         });
+
+        function generateControlPanel() {
+            const controlsPanel = document.getElementById('controlsPanel');
+            controlsPanel.innerHTML = '';
+
+            if (GameConfig.numCars === 2) {
+                // Original layout for 2 cars
+                const controls = ['A', 'D', '←', '→'];
+                controls.forEach((key, index) => {
+                    const controlKey = document.createElement('div');
+                    controlKey.className = 'controlKey';
+                    controlKey.setAttribute('data-lane', index);
+                    controlKey.textContent = key;
+                    controlsPanel.appendChild(controlKey);
+                });
+            } else {
+                // Layout for 3 or more cars
+                for (let i = 0; i < GameConfig.numCars; i++) {
+                    const carControls = document.createElement('div');
+                    carControls.className = 'carControls';
+                    
+                    const key = document.createElement('div');
+                    key.className = 'controlKey';
+                    key.setAttribute('data-car', i);
+                    key.textContent = GameConfig.controls[i];
+                    
+                    carControls.appendChild(key);
+                    controlsPanel.appendChild(carControls);
+                }
+            }
+        }
+
+        const style = document.createElement('style');
+        style.textContent = `
+            #gameContainer {
+                max-width: 800px;
+                margin: 0 auto;
+            }
+            #controlsPanel {
+                display: flex;
+                justify-content: space-around;
+                padding: 10px 0;
+            }
+            .carControls {
+                display: flex;
+                gap: 10px;
+            }
+            .controlKey {
+                width: 40px;
+                height: 40px;
+                background-color: rgba(255, 255, 255, 0.2);
+                border-radius: 8px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-weight: bold;
+                font-size: 18px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                transition: all 0.3s ease;
+            }
+            .controlKey:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 8px rgba(0,0,0,0.2);
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 </body>
