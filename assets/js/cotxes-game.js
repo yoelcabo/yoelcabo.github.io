@@ -90,7 +90,7 @@
                 this.gameStarted = false;
                 this.speed = GameConfig.startSpeed;
                 this.lastObstacleTime = 0;
-                this.highScore = parseInt(localStorage.getItem('highScore') || '0');
+                this.highScore = parseInt(localStorage.getItem(`highScore_${GameConfig.numCars}cars`) || '0');
                 this.isNewHighScore = false;
                 
                 // Initialize distance trackers for each pair of lanes
@@ -261,7 +261,7 @@
                                 // Update high score if necessary
                                 if (this.score > this.highScore) {
                                     this.highScore = this.score;
-                                    localStorage.setItem('highScore', this.highScore.toString());
+                                    localStorage.setItem(`highScore_${GameConfig.numCars}cars`, this.highScore.toString());
                                     this.isNewHighScore = true;
                                 }
                                 // Remove the collected obstacle
@@ -1499,6 +1499,7 @@
             GameState.initialize();
             generateControlPanel();  // Add this line
             hideAuthorInfo();
+            updatePageTitle();  // Add this line
             requestAnimationFrame(gameLoop);
         });
 
