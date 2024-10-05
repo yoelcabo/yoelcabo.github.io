@@ -403,7 +403,7 @@
                 this.width = Math.min(50, GameState.laneWidth * 0.8);
                 this.height = this.width * 1.6;
                 // Adjust the vertical position of the car
-                this.y = GameState.height - this.height - GameConfig.bottomMargin - (GameState.height * 0.02); // Lift the car by 5% of the game height instead of 10%
+                this.y = GameState.height - this.height - GameConfig.bottomMargin - (GameState.height * 0.05); // Lift the car by 15% of the game height
                 this.updatePosition();
             }
 
@@ -495,8 +495,8 @@
             updateDimensions() {
                 this.size = Math.min(40, GameState.laneWidth * 0.6);
                 this.x = (this.lane + 0.5) * GameState.laneWidth - this.size / 2;
-                // Start obstacles higher in the game area, but adjusted for the new car position
-                this.y = -this.size - (GameState.height * 0.05); // Start 5% of game height higher
+                // Start obstacles higher in the game area
+                this.y = -this.size - (GameState.height * 0.15); // Start 15% of game height higher
             }
 
             updateVisibility() {
@@ -1043,7 +1043,7 @@
             gameSVG.setAttribute('height', GameState.height);
             
             // Recalculate bottom margin based on fixed height
-            GameConfig.bottomMargin = GameState.height * 0.05; // 5% of game height
+            GameConfig.bottomMargin = GameState.height * 0.1; // 10% of game height
 
             GameScreen.draw();
             StartScreen.draw();
