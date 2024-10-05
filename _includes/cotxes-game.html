@@ -1,0 +1,24 @@
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ '/assets/css/cotxes-game.css' | relative_url }}">
+</head>
+<body>
+    <div id="author-info">
+        <a href="{{ '/' | relative_url }}">Yoel Cabo</a>
+    </div>
+    <div id="gameContainer">
+        <svg id="gameSVG" width="400" height="650"></svg>
+        <div id="controlsPanel">
+            <div class="controlKey" data-lane="0">A</div>
+            <div class="controlKey" data-lane="1">D</div>
+            <div class="controlKey" data-lane="2">←</div>
+            <div class="controlKey" data-lane="3">→</div>
+        </div>
+        <button id="fullscreenButton">
+            <span class="material-icons">fullscreen</span>
+        </button>
+    </div>
+    <script src="{{ '/assets/js/cotxes-game.js' | relative_url }}"></script>
+</body>
