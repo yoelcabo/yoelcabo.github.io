@@ -27,7 +27,7 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             position: relative;
             width: 100%;
             height: 100%;
-            max-width: 400px;
+            max-width: 1600px;
             max-height: 90vh;
             display: flex;
             flex-direction: column;
@@ -137,17 +137,19 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             pointer-events: none;
         }
         #gameContainer {
-            max-width: 800px;
+            max-width: 1600px;
             margin: 0 auto;
         }
         #controlsPanel {
             display: flex;
             justify-content: space-around;
             padding: 10px 0;
+            flex-wrap: wrap;
         }
         .carControls {
             display: flex;
             gap: 10px;
+            margin: 5px;
         }
         .controlKey {
             width: 40px;
@@ -187,7 +189,16 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
     <script>
         const GameConfig = {
             numCars: 2,
-            carColors: ['#00BCD4', '#FF4081', '#FFEB3B', '#4CAF50'],
+            carColors: [
+                '#00BCD4',  // Cyan
+                '#FF4081',  // Pink
+                '#FFEB3B',  // Yellow
+                '#4CAF50',  // Green
+                '#FF5722',  // Deep Orange
+                '#9C27B0',  // Purple
+                '#3F51B5',  // Indigo
+                '#795548'   // Brown
+            ],
             startSpeed: 300,
             maxSpeed: 1000,
             acceleration: 10,
@@ -198,10 +209,14 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             fixedDeltaTime: 1000 / 60,
             bottomMargin: 0, // We'll calculate this dynamically now
             obstacleColors: [
-                { circle: '#00BCD4', square: '#0097A7' },  // Blue
+                { circle: '#00BCD4', square: '#0097A7' },  // Cyan
                 { circle: '#FF4081', square: '#C2185B' },  // Pink
                 { circle: '#FFEB3B', square: '#FBC02D' },  // Yellow
-                { circle: '#4CAF50', square: '#388E3C' }   // Green
+                { circle: '#4CAF50', square: '#388E3C' },  // Green
+                { circle: '#FF5722', square: '#E64A19' },  // Deep Orange
+                { circle: '#9C27B0', square: '#7B1FA2' },  // Purple
+                { circle: '#3F51B5', square: '#303F9F' },  // Indigo
+                { circle: '#795548', square: '#5D4037' }   // Brown
             ],
             transitionDurations: {
                 gameStart: 1000,
@@ -213,7 +228,8 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
         // Set controls based on number of cars
         GameConfig.controls = GameConfig.numCars === 2 
             ? ['A', 'D', 'ArrowLeft', 'ArrowRight']
-            : ['D', 'F', 'J', 'K'];
+            : GameConfig.numCars <= 4 ? ['D', 'F', 'J', 'K']
+            : ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'];
 
         // Estat del joc
         const GameState = {
@@ -226,15 +242,13 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             gameStarted: false,
             speed: GameConfig.startSpeed,
             lastObstacleTime: 0,
-            distanceSinceLastObstacle: 0,
+            distanceSinceLastObstacle: [],
             lastTime: 0,
             accumulator: 0,
             gameStartTransition: false,
             gameStartTransitionStart: 0,
             gameRestartTransition: false,
             gameRestartTransitionStart: 0,
-            car1TransitionStart: 0,
-            car2TransitionStart: 0,
             laneWidth: 0,
             lastAvoidedObstacle: null,
             gameOverObstacle: null,
@@ -265,13 +279,15 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
                 this.gameStarted = false;
                 this.speed = GameConfig.startSpeed;
                 this.lastObstacleTime = 0;
-                this.distanceSinceLastObstacle = GameConfig.baseObstacleDistance;
                 this.highScore = parseInt(localStorage.getItem('highScore') || '0');
                 this.isNewHighScore = false;
+                
+                // Initialize distance trackers for each pair of lanes
+                this.distanceSinceLastObstacle = Array(GameConfig.numCars).fill(GameConfig.baseObstacleDistance);
             },
 
             reset() {
-                if (!this.cars[0] || !this.cars[1]) {
+                if (!this.cars.length) {
                     this.initialize();
                     this.gameStartTransition = true;
                     this.gameStartTransitionStart = performance.now();
@@ -315,7 +331,7 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             initializeGameState() {
                 this.speed = GameConfig.startSpeed;
                 this.lastObstacleTime = performance.now();
-                this.distanceSinceLastObstacle = GameConfig.baseObstacleDistance;
+                this.distanceSinceLastObstacle = Array(GameConfig.numCars).fill(GameConfig.baseObstacleDistance);
             },
 
             updateSpeed(deltaTime) {
@@ -327,25 +343,18 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             createObstacle() {
                 if (this.gameStartTransition || this.gameRestartTransition || !this.gameStarted) return false;
                 
-                if (this.distanceSinceLastObstacle < GameConfig.baseObstacleDistance) return false;
-
-                const createForSide = (startLane) => {
-                    const pair = this.obstacles.filter(obs => obs.lane >= startLane && obs.lane < startLane + 2);
-                    if (pair.length < GameConfig.maxObstaclesPerPair && Math.random() < 0.5) {
+                let obstacleCreated = false;
+                for (let i = 0; i < GameConfig.numCars; i++) {
+                    const startLane = i * 2;
+                    if (this.distanceSinceLastObstacle[i] >= GameConfig.baseObstacleDistance && Math.random() < 0.5) {
                         if (this.createObstacleForPair(startLane, startLane + 1)) {
-                            this.distanceSinceLastObstacle = 0;
-                            return true;
+                            this.distanceSinceLastObstacle[i] = 0;
+                            obstacleCreated = true;
                         }
                     }
-                    return false;
-                };
-
-                // Try to create obstacles for all lanes
-                for (let i = 0; i < GameConfig.numCars * 2; i += 2) {
-                    if (createForSide(i)) return true;
                 }
 
-                return false;
+                return obstacleCreated;
             },
 
             createObstacleForPair(lane1, lane2) {
@@ -378,7 +387,11 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
 
             moveObstacles(deltaTime) {
                 const moveDistance = (this.speed * deltaTime) / 1000;
-                this.distanceSinceLastObstacle += moveDistance;
+                
+                // Update distance for each pair of lanes
+                for (let i = 0; i < this.distanceSinceLastObstacle.length; i++) {
+                    this.distanceSinceLastObstacle[i] += moveDistance;
+                }
 
                 this.obstacles.forEach(obstacle => {
                     obstacle.move(moveDistance);
@@ -392,7 +405,7 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
                     if (obstacle.isCircle && obstacle.y + obstacle.size > this.height) {
                         this.gameOver = true;
                         this.gameOverObstacle = obstacle;
-                        this.gameOverCar = (obstacle.lane < 2) ? this.cars[0] : this.cars[1];
+                        this.gameOverCar = this.cars[Math.floor(obstacle.lane / 2)];
                         this.gameOverObstacle.highlight();
                         this.gameOverCar.highlight();
                     }
@@ -415,8 +428,9 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
                     }
                 };
 
-                ensureForSide(0); // Left side
-                ensureForSide(2); // Right side
+                for (let i = 0; i < GameConfig.numCars; i += 2) {
+                    ensureForSide(i);
+                }
             },
 
             checkCollisions() {
