@@ -186,8 +186,8 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
     </div>
     <script>
         const GameConfig = {
-            numCars: 3,
-            carColors: ['#00BCD4', '#FF4081', '#FFEB3B'],
+            numCars: 2,
+            carColors: ['#00BCD4', '#FF4081', '#FFEB3B', '#4CAF50'],
             startSpeed: 300,
             maxSpeed: 1000,
             acceleration: 10,
@@ -200,7 +200,8 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             obstacleColors: [
                 { circle: '#00BCD4', square: '#0097A7' },  // Blue
                 { circle: '#FF4081', square: '#C2185B' },  // Pink
-                { circle: '#FFEB3B', square: '#FBC02D' }   // Yellow
+                { circle: '#FFEB3B', square: '#FBC02D' },  // Yellow
+                { circle: '#4CAF50', square: '#388E3C' }   // Green
             ],
             transitionDurations: {
                 gameStart: 1000,
@@ -248,7 +249,9 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
                 // Initialize cars
                 for (let i = 0; i < GameConfig.numCars; i++) {
                     const initialX = (i * 2 + 1) * this.laneWidth - carWidth / 2;
-                    const lane = i * 2 + (i === GameConfig.numCars - 1 ? 1 : 0);
+                    const isRightHalf = i >= Math.ceil(GameConfig.numCars / 2);
+                    const lane = i * 2 + (isRightHalf ? 1 : 0);
+                    
                     this.cars[i] = new Car(lane, GameConfig.carColors[i], initialX);
                     
                     this.cars[i].targetX = (lane + 0.5) * this.laneWidth - carWidth / 2;
@@ -575,7 +578,7 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
                 this.width = Math.min(50, GameState.laneWidth * 0.8);
                 this.height = this.width * 1.6;
                 // Adjust the vertical position of the car
-                this.y = GameState.height - this.height - GameConfig.bottomMargin - (GameState.height * 0.1); // Lift the car by 10% of the game height
+                this.y = GameState.height - this.height - GameConfig.bottomMargin - (GameState.height * 0.02); // Lift the car by 5% of the game height instead of 10%
                 this.updatePosition();
             }
 
@@ -667,8 +670,8 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
             updateDimensions() {
                 this.size = Math.min(40, GameState.laneWidth * 0.6);
                 this.x = (this.lane + 0.5) * GameState.laneWidth - this.size / 2;
-                // Start obstacles higher in the game area
-                this.y = -this.size - (GameState.height * 0.1); // Start 10% of game height higher
+                // Start obstacles higher in the game area, but adjusted for the new car position
+                this.y = -this.size - (GameState.height * 0.05); // Start 5% of game height higher
             }
 
             updateVisibility() {
@@ -1190,7 +1193,7 @@ description: "Un joc senzill on condueixes dos cotxes alhora, fet 100% amb eines
                 controlsPanel.style.display = 'none';
             } else {
                 // Adjust width based on number of cars, but keep height fixed
-                const baseWidth = GameConfig.numCars === 2 ? 400 : 600;
+                const baseWidth = GameConfig.numCars * 200;
                 GameState.width = Math.min(baseWidth, window.innerWidth * 0.8);
                 GameState.height = fixedHeight;
                 container.style.width = `${GameState.width}px`;
