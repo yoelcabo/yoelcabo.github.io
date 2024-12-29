@@ -27,7 +27,7 @@ Ayuda Efectiva includes also three other charities that are not GiveWell top pic
 
 ## My Personal Choice: GiveDirectly
 
-While GiveWell's top charities are excellent choices, I personally donate to [GiveDirectly](https://www.givedirectly.org/). They simply send my money directly to extremely poor households in countries where my euros are worth more than in Spain, no strings attached. And people themselves decide how best to improve their lives.
+While GiveWell's top charities are excellent choices, I personally donate to [GiveDirectly](https://www.givedirectly.org/). They simply send my money directly to extremely poor households in countries where my euros are worth more than in Spain, no strings attached. And people themselves decide how best to improve their lives. (fun fact: I'm the first ever person to donate to GiveDirectly through Ayuda Efectiva)
 
 And it works! GiveDirectly has [solid support from GiveWell](https://www.givewell.org/charities/give-directly/all-content), pointing to extensive research showing positive impacts. Recipients have used the money for everything from starting businesses to fixing their homes, sending kids to school, or buying necessary medication. The reason they don't recommend it is because they think it's just 30% as effective as their top charities. But that's still a lot of effectiveness, isn't it?
 
@@ -64,3 +64,5 @@ Learn more about how this works in [this article](https://ayudaefectiva.org/dedu
 5. Repeat next year!
 
 Oh! And if this post helped you do it, let me know at [ei@yoel.cat](mailto:ei@yoel.cat) to make me smile.
+
+Or if you donate through Ayuda Efectiva you can use [this link](https://ayudaefectiva.org/u/rckzxw) to get our accounts linked.
