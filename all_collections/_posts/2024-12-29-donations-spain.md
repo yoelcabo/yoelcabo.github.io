@@ -49,6 +49,8 @@ For example:
 
 Charities will report your donation directly to the tax authorities, so it should appear automatically in your draft Declaración de la Renta and be no extra effort.
 
+Learn more about how this works in [this article](https://ayudaefectiva.org/deduccion-fiscal-donativos) (in Spanish).
+
 
 ## Let's do it now before the end of the year?
 
