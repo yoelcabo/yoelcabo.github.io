@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Giving in Spain: Donate 250€ by spending 50€"
+title: "Giving in Spain: spend 50€, donate 250€"
 categories: ["effective-altruism", "spain"]
 lang: en
 ---
