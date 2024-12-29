@@ -2,6 +2,10 @@ title: Yoel Cabo
 markdown: kramdown
 url: "https://yoel.cat"
 
+# Languages configuration
+languages: ["ca", "en"]
+default_lang: "ca"
+
 # for atom feed
 author:
   name: Yoel Cabo

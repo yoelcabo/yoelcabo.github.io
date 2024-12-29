@@ -1,0 +1,22 @@
+.language-switcher {
+  margin: 1rem 0;
+  text-align: right;
+}
+
+.lang-link {
+  padding: 0.3rem 0.6rem;
+  margin: 0 0.2rem;
+  border-radius: 3px;
+  color: var(--white);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.lang-link.active {
+  background: var(--gray);
+  cursor: default;
+}
+
+.lang-link:not(.active):hover {
+  background: var(--gray-2);
+} 

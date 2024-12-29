@@ -2,6 +2,7 @@
 layout: post
 title: El paràmetre si= de Youtube
 categories: [privacitat, youtube]
+lang: ca
 ---
   
 Quan compartim un vídeo de YouTube a una altra plataforma, l'enllaç que ens dona el dia d'avui és d'aquest estil:

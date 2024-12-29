@@ -3,7 +3,13 @@
     <img src="{{site.data.author.dp}}" alt="" />
   </section>
   <section id="bio-wrapper">
-    <div id="text-wrapper">{{site.data.author.description}}</div>
+    <div id="text-wrapper">
+      {% if page.lang == 'en' %}
+        {{site.data.bio.en}}
+      {% else %}
+        {{site.data.bio.ca}}
+      {% endif %}
+    </div>
     <div id="social-wrapper">
       {% for i in site.data.author.contact %}
       <a href="{{i.url}}" target="_blank">

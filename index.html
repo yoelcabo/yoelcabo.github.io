@@ -1,9 +1,19 @@
+---
+layout: default
+title: Yoel Cabo
+lang: ca
+---
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ca">
   {% include head.html %}
   <body>
     <main>
       {% include header.html %} {% include bio.html %}
+      <div class="language-switcher">
+        <span class="lang-link active">Català</span>
+        <a href="/en" class="lang-link">English</a>
+      </div>
       <section class="articles">
         {% for post in site.posts %}
         {% if post.lang == 'ca' %}
@@ -27,4 +37,4 @@
     </main>
     {% include category-modal.html%}
   </body>
-</html>
+</html> 

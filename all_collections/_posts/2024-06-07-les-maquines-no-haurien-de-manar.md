@@ -2,6 +2,7 @@
 layout: post
 title: Les màquines no haurien de manar
 categories: [producte, intel·ligència artificial]
+lang: ca
 ---
 
 L'altre dia vaig anar a casa d'uns amics que s'acabaven de comprar una de les últimes thermomix. Havia estat idea d'un dels dos i l'altra s'havia deixat convèncer, però hi havia quelcom que no li agradava de tenir "tanta tecnologia".
