@@ -16,12 +16,15 @@ plugins:
   - jekyll-seo-tag
   - jekyll-sitemap
   - jekyll-feed
+  - jekyll-redirect-from
 
 collections_dir: all_collections
 collections:
   posts:
     output: true
   projects:
+    output: true
+  redirects:
     output: true
 
 defaults:
