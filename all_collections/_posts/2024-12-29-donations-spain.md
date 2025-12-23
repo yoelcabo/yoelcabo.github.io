@@ -33,6 +33,14 @@ And it works! GiveDirectly has [solid support from GiveWell](https://www.givewel
 
 I strongly believe in people's autonomy to make their own choices. Instead of us in wealthy countries deciding what others need. I am convinced this extra autonomy has an immense value that just cannot be easily measured by GiveWell's highly scientific approach. (after all, [science has blind spots](https://www.happyscribe.com/transcriptions/c88b05e048854a6db4a2713a34e2c4ef/edit?position=9801))
 
+### 2025 update
+
+This year I diversified my donations a bit:
+- 50% still going to GiveDirectly
+- 30% going to [The Humane League](https://thehumaneleague.org/), who seem to be doing a very effective job at convincing big corporations to reduce animal suffering. My small contribution after going back to eating fish 15 years later.
+- 20% going to [Against Malaria Foundation](https://www.againstmalaria.com/), who distribute mosquito nets to prevent malaria. The 2nd top-rated charity by GiveWell. Why not donating to the number 1? It's preventive medicine for malaria, but I'm just not a big fan of the idea of medicating people on a regular basis and the incentives it creates.
+
+
 ## And how does the tax deduction work?
 
 Tax deductions are simple: they are an amount that gets subtracted from your tax bill directly. Unless your income is the minimum salary or below, you are paying taxes and you can get a tax deduction for your donations.
