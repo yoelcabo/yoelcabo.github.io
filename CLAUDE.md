@@ -122,17 +122,6 @@ The built site is output to `_site/` directory.
 
 The site uses GitHub Pages (indicated by `CNAME` file). Commits to the main branch trigger automatic deployment.
 
-## Git Status
-
-Current untracked posts (as of last check):
-- `2023-11-24-com-funciona-el-chatgpt.md`
-- `2023-12-29-tax-efficient-donations-spain.md`
-- `2024-02-24-bullshit-jobs-programadors-i-agricultors..md`
-- `2024-10-16-gestio-organitzativa.md`
-- `all_collections/_projects/notes/` (directory)
-
-These may be drafts or pending publication.
-
 ## Key Files Reference
 
 - **Config**: `_config.yml:1`
