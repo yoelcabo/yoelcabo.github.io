@@ -1,0 +1,359 @@
+/* Landing page - Hero with overlay card, mobile-first */
+
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;600&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: #faf8f5;
+  --text: #2d2a26;
+  --text-secondary: #5c5650;
+  --accent: #8b7355;
+  --card-bg: #ffffff;
+  --link-border: #e8e4de;
+  --link-hover: #f5f2ed;
+}
+
+[data-theme="dark"] {
+  --bg: #1a1a1a;
+  --text: #e8e4de;
+  --text-secondary: #a09a92;
+  --accent: #c4a882;
+  --card-bg: #252525;
+  --link-border: #3a3a3a;
+  --link-hover: #2f2f2f;
+}
+
+html, body {
+  min-height: 100vh;
+  font-family: 'Source Serif 4', Georgia, serif;
+  background-color: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.landing {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Hero photo section */
+.hero {
+  width: 100%;
+  height: 35vh;
+  min-height: 200px;
+  position: relative;
+}
+
+.hero-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 35%;
+}
+
+/* Content card - overlaps the hero */
+.content-card {
+  background: var(--card-bg);
+  border-radius: 24px 24px 0 0;
+  margin-top: -2rem;
+  padding: 2rem 1.5rem 5rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+}
+
+/* Name */
+.name {
+  font-family: 'Source Sans 3', -apple-system, sans-serif;
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: var(--text);
+  text-align: center;
+}
+
+/* Tagline - the roles */
+.tagline {
+  text-align: center;
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.tagline span {
+  display: inline;
+}
+
+.tagline .separator {
+  color: var(--text-secondary);
+  margin: 0 0.15rem;
+}
+
+/* Manifesto */
+.manifesto {
+  text-align: center;
+  font-style: italic;
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+  max-width: 320px;
+  line-height: 1.5;
+}
+
+/* Intro section */
+.intro {
+  text-align: justify;
+  margin-bottom: 1.5rem;
+  max-width: 340px;
+}
+
+.intro p {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+}
+
+/* Email link */
+.email {
+  text-align: center;
+  margin-top: 2.5rem;
+}
+
+.email a {
+  color: var(--text);
+  font-family: 'Source Sans 3', -apple-system, sans-serif;
+  font-weight: 600;
+  font-size: 1.1rem;
+  text-decoration: none;
+  border-bottom: 2px solid var(--link-border);
+  padding-bottom: 2px;
+  transition: border-color 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.email a:hover {
+  border-color: var(--text);
+}
+
+/* Nav links - linktree style */
+.nav-links {
+  width: 100%;
+  max-width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.nav-links a {
+  display: block;
+  width: 100%;
+  padding: 0.85rem 1.25rem;
+  background: var(--bg);
+  border: 1px solid var(--link-border);
+  border-radius: 12px;
+  text-align: center;
+  text-decoration: none;
+  color: var(--text);
+  font-family: 'Source Sans 3', -apple-system, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.nav-links a:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.nav-links .separator {
+  display: none;
+}
+
+/* Language switcher - fixed at bottom */
+.lang-switcher {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.5rem;
+  z-index: 50;
+}
+
+.lang-btn {
+  padding: 0.5rem 0.9rem;
+  border: 1px solid var(--link-border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: 'Source Sans 3', -apple-system, sans-serif;
+  font-size: 0.85rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.lang-btn:hover {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.lang-btn.active {
+  background: var(--text);
+  color: var(--card-bg);
+  border-color: var(--text);
+}
+
+/* Dark mode toggle - top right */
+.mode-toggle {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: var(--card-bg);
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  transition: all 0.2s ease;
+  z-index: 100;
+}
+
+.mode-toggle:hover {
+  transform: scale(1.1);
+}
+
+/* Tablet and up */
+@media (min-width: 600px) {
+  .hero {
+    height: 50vh;
+    min-height: 350px;
+  }
+
+  .content-card {
+    margin-top: -3rem;
+    padding: 2.5rem 2rem;
+    border-radius: 32px 32px 0 0;
+  }
+
+  .name {
+    font-size: 2rem;
+  }
+
+  .tagline {
+    font-size: 1.1rem;
+  }
+
+  .manifesto {
+    font-size: 1rem;
+    max-width: 380px;
+  }
+
+  .links {
+    max-width: 360px;
+  }
+}
+
+/* Desktop - side by side layout */
+@media (min-width: 900px) {
+  .landing {
+    flex-direction: row-reverse;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .hero {
+    position: relative;
+    width: 72%;
+    height: 100vh;
+    min-height: 100vh;
+    margin-left: -32px;
+  }
+
+  .hero-photo {
+    object-position: center center;
+    object-fit: cover;
+  }
+
+  .content-card {
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    margin-top: 0;
+    width: 28%;
+    max-width: none;
+    height: 100vh;
+    border-radius: 0 32px 32px 0;
+    box-shadow: 4px 0 30px rgba(0,0,0,0.1);
+    justify-content: flex-start;
+    align-items: center;
+    padding: 4rem 2.5rem;
+    flex-shrink: 0;
+  }
+
+  .name {
+    font-size: 3.2rem;
+    margin-bottom: 2.5rem;
+    text-align: left;
+    width: 100%;
+    max-width: 420px;
+  }
+
+  .intro {
+    max-width: 420px;
+    margin-bottom: 2rem;
+    text-align: justify;
+  }
+
+  .intro p {
+    font-size: 1.1rem;
+    line-height: 1.5;
+  }
+
+  .nav-links {
+    max-width: 420px;
+    gap: 0.75rem;
+  }
+
+  .nav-links a {
+    font-size: 1.2rem;
+    padding: 1.15rem 1.75rem;
+  }
+
+  .email {
+    margin-top: 3.5rem;
+    text-align: center;
+  }
+
+  .email a {
+    font-size: 1.4rem;
+  }
+
+  .lang-switcher {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 0;
+  }
+
+  .lang-btn {
+    padding: 0.7rem 1.2rem;
+    font-size: 1rem;
+  }
+}

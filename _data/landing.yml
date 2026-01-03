@@ -1,0 +1,35 @@
+ca:
+  intro: "Benvingut/da al meu racó d'Internet. Aquí comparteixo el que vull, com vull i sense que ningú intenti captar la meva atenció amb coses que no m'interessen."
+  links:
+    - text: "Explora'm"
+      url: "/exploram"
+    - text: "Et faig un massatge"
+      url: "/massatge"
+    - text: "Treballa amb mi"
+      url: "/trabajo"
+    - text: "Què és aquesta web?"
+      url: "/aquest-web"
+
+es:
+  intro: "Bienvenido/a a mi rincón de Internet. Aquí comparto lo que quiero, como quiero y sin que nadie intente captar mi atención con cosas que no me interesan."
+  links:
+    - text: "Explórame"
+      url: "/explorame"
+    - text: "Te hago un masaje"
+      url: "/masaje"
+    - text: "Trabaja conmigo"
+      url: "/trabajo"
+    - text: "¿Qué es esta web?"
+      url: "/esta-web"
+
+en:
+  intro: "Welcome to my corner of the internet. Where I share whatever I want without attention-grabbing features trying to get me."
+  links:
+    - text: "Explore me"
+      url: "/explore"
+    - text: "Come get a massage"
+      url: "/massage"
+    - text: "Work with me"
+      url: "/work"
+    - text: "What is this website?"
+      url: "/this-site"
